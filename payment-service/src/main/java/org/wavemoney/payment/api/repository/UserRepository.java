@@ -1,8 +1,9 @@
 package org.wavemoney.payment.api.repository;
 
-import lombok.NonNull;
 import org.springframework.data.mongodb.repository.MongoRepository;
 import org.wavemoney.payment.api.entity.User;
 
-public interface UserRepository extends MongoRepository<@NonNull User, @NonNull String> {
+public interface UserRepository extends MongoRepository<User, String> {
+
+    boolean existsByEmail(String email);
 }
