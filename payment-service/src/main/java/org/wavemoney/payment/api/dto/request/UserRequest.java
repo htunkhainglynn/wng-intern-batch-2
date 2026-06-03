@@ -8,7 +8,6 @@ public record UserRequest(
         @NotBlank(message = "name is required")
         String name,
 
-
         @NotBlank(message = "phone is required")
         @Pattern(regexp = "^[0-9+\\-\\s]{6,20}$", message = "phone format is invalid")
         String phone,
@@ -18,6 +17,5 @@ public record UserRequest(
 
         @NotBlank(message = "password is required")
         String password
-
 ) {
 }

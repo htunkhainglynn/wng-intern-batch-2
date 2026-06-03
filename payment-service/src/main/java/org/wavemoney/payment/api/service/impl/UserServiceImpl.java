@@ -8,6 +8,7 @@ import org.wavemoney.payment.api.entity.User;
 import org.wavemoney.payment.api.exception.BusinessLogicException;
 import org.wavemoney.payment.api.repository.UserRepository;
 import org.wavemoney.payment.api.service.UserService;
+import org.wavemoney.payment.api.service.WalletService;
 
 import java.time.LocalDateTime;
 
@@ -16,6 +17,7 @@ import java.time.LocalDateTime;
 public class UserServiceImpl implements UserService {
 
     private final UserRepository userRepository;
+    private final WalletService walletService;
 
     @Override
     public UserResponse create(UserRequest request) {
@@ -32,6 +34,8 @@ public class UserServiceImpl implements UserService {
                 .build();
 
         User saved = userRepository.save(user);
+        saved.getPhone();
+
         return toResponse(saved);
     }
 
