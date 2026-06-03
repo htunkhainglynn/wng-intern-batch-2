@@ -1,11 +1,11 @@
 package org.wavemoney.payment.api.dto.request;
 
-import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
+import lombok.Builder;
 import org.wavemoney.payment.api.enums.Currency;
 import org.wavemoney.payment.api.enums.WalletStatus;
-import org.wavemoney.payment.api.dto.request.UserRequest;
 
+@Builder
 public record WalletRequest (
     String walletId,
 

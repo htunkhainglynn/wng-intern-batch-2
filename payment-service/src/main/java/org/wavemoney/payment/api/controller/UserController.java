@@ -26,7 +26,6 @@ public class UserController {
                 .body(ApiResponse.success(created, HttpStatus.CREATED.value(), "User created"));
     }
 
-
     @GetMapping("/{phone}")
     public ResponseEntity<ApiResponse<UserResponse>> getByPhone(@PathVariable String phone) {
         UserResponse user = userService.getByPhone(phone);

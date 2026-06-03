@@ -7,8 +7,8 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 import org.springframework.data.annotation.Id;
 import org.springframework.data.mongodb.core.mapping.Document;
-import org.wavemoney.payment.api.enums.Currency;
-import org.wavemoney.payment.api.enums.WalletStatus;
+
+import java.time.LocalDateTime;
 
 @Data
 @Builder
@@ -21,8 +21,10 @@ public class Wallet {
     private String walletId;
     private String phoneNumber;
     private double balance;
-    private Currency currency;
-    private WalletStatus status;
+    private String currency;
+    private String status;
+    private LocalDateTime createdAt;
+    private LocalDateTime updateAt;
 
 }
 

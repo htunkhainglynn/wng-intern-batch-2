@@ -6,6 +6,7 @@ import org.wavemoney.payment.api.dto.request.WalletRequest;
 import org.wavemoney.payment.api.dto.response.WalletResponse;
 import org.wavemoney.payment.api.entity.User;
 import org.wavemoney.payment.api.entity.Wallet;
+import org.wavemoney.payment.api.enums.Currency;
 import org.wavemoney.payment.api.exception.BusinessLogicException;
 import org.wavemoney.payment.api.enums.WalletStatus;
 import org.wavemoney.payment.api.repository.UserRepository;
@@ -25,9 +26,10 @@ public class WalletServiceImpl implements WalletService {
 
     @Override
     public WalletResponse create(WalletRequest request) {
-        if (request.phoneNumber() == null || request.phoneNumber().isBlank()) {
-            throw BusinessLogicException.validation("PHONE_NUMBER_REQUIRED", "Phone number is required");
-        }
+
+//        if (request.phoneNumber() == null || request.phoneNumber().isBlank()) {
+//            throw BusinessLogicException.validation("PHONE_NUMBER_REQUIRED", "Phone number is required");
+//        }
 
         User user = userRepository.findByPhone(request.phoneNumber())
                 .orElseThrow(() -> BusinessLogicException.notFound("USER_NOT_FOUND", "User with phone number " + request.phoneNumber() + " not found"));
@@ -38,8 +40,8 @@ public class WalletServiceImpl implements WalletService {
                 .walletId(id)
                 .phoneNumber(user.getPhone())
                 .balance(request.balance())
-                .currency(request.currency())
-                .status(request.status() != null ? request.status() : WalletStatus.ACTIVE)
+                .currency(Currency.MMK.name())
+                .status(WalletStatus.ACTIVE.name())
                 .build();
 
         Wallet saved = walletRepository.save(wallet);

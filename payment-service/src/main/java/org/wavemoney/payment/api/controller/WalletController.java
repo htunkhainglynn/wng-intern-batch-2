@@ -27,11 +27,11 @@ public class WalletController {
 				.body(ApiResponse.success(created, HttpStatus.CREATED.value(), "Wallet created"));
 	}
 
-	@GetMapping("/{walletId}")
-	public ResponseEntity<ApiResponse<WalletResponse>> getById(@PathVariable String walletId) {
-		WalletResponse wallet = walletService.getById(walletId);
-		return ResponseEntity.ok(ApiResponse.success(wallet));
-	}
+//	@GetMapping("/{walletId}")
+//	public ResponseEntity<ApiResponse<WalletResponse>> getById(@PathVariable String walletId) {
+//		WalletResponse wallet = walletService.getById(walletId);
+//		return ResponseEntity.ok(ApiResponse.success(wallet));
+//	}
 
 	@GetMapping("/{phoneNumber}")
 	public ResponseEntity<ApiResponse<List<WalletResponse>>> getWalletByPhoneNumber(@PathVariable String phoneNumber) {
