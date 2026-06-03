@@ -9,6 +9,8 @@ import org.wavemoney.payment.api.exception.BusinessLogicException;
 import org.wavemoney.payment.api.repository.UserRepository;
 import org.wavemoney.payment.api.service.UserService;
 
+import java.time.LocalDateTime;
+
 @Service
 @RequiredArgsConstructor
 public class UserServiceImpl implements UserService {
@@ -17,28 +19,90 @@ public class UserServiceImpl implements UserService {
 
     @Override
     public UserResponse create(UserRequest request) {
-        if (userRepository.existsByEmail(request.email())) {
-            throw BusinessLogicException.business("USER_EMAIL_TAKEN", "Email is already registered");
+        if (userRepository.existsByPhoneOrNrc(request.phone(), request.nrc())) {
+            throw BusinessLogicException.business("ACCOUNT_TAKEN", "Account is already taken");
         }
 
         User user = User.builder()
                 .name(request.name())
-                .email(request.email())
                 .phone(request.phone())
+                .nrc(request.nrc())
+                .password(request.password())
+                .createdAt(LocalDateTime.now())
                 .build();
 
         User saved = userRepository.save(user);
         return toResponse(saved);
     }
 
+    private UserResponse toResponse(User user) {
+        return new UserResponse(user.getId(), user.getName(), user.getPhone(), user.getPassword(), user.getNrc());
+    }
+
     @Override
-    public UserResponse getById(String id) {
-        User user = userRepository.findById(id)
-                .orElseThrow(() -> BusinessLogicException.notFound("USER_NOT_FOUND", "User " + id + " not found"));
+    public UserResponse getByPhone(String phone) {
+        User user = userRepository.findByPhone(phone)
+                .orElseThrow(() -> BusinessLogicException.notFound("USER_NOT_FOUND", "User with phone " + phone + " not found"));
         return toResponse(user);
     }
 
-    private UserResponse toResponse(User user) {
-        return new UserResponse(user.getId(), user.getName(), user.getEmail(), user.getPhone());
+    @Override
+    public UserResponse login(String phone, String password) {
+        User user = userRepository.findByPhone(phone)
+                .orElseThrow(() -> BusinessLogicException.auth("INVALID_CREDENTIALS", "Invalid credentials"));
+
+        if (!user.getPassword().equals(password)) {
+            throw BusinessLogicException.auth("INVALID_CREDENTIALS", "Invalid credentials");
+        }
+
+        user.setLastLogin(LocalDateTime.now());
+        userRepository.save(user);
+
+        return toResponse(user);
+    }
+
+    @Override
+    public void logout(String id) {
+        // stateless/logout stub - update lastLogin to null or leave as-is. We'll update nothing for now.
+        // Could be extended to manage tokens in Redis.
+        if (!userRepository.existsById(id)) {
+            throw BusinessLogicException.notFound("USER_NOT_FOUND", "User " + id + " not found");
+        }
+    }
+
+    @Override
+    public UserResponse update(String id, UserRequest request) {
+        User user = userRepository.findById(id)
+                .orElseThrow(() -> BusinessLogicException.notFound("USER_NOT_FOUND", "User " + id + " not found"));
+
+        user.setName(request.name());
+        user.setPhone(request.phone());
+        user.setNrc(request.nrc());
+
+
+        User saved = userRepository.save(user);
+        return toResponse(saved);
+    }
+
+    @Override
+    public void changePassword(String id, String oldPassword, String newPassword) {
+        User user = userRepository.findById(id)
+                .orElseThrow(() -> BusinessLogicException.notFound("USER_NOT_FOUND", "User " + id + " not found"));
+
+        if (!user.getPassword().equals(oldPassword)) {
+            throw BusinessLogicException.business("INVALID_PASSWORD", "Old password does not match");
+        }
+
+        user.setPassword(newPassword);
+        userRepository.save(user);
+    }
+
+    @Override
+    public void delete(String id) {
+        if (!userRepository.existsById(id)) {
+            throw new RuntimeException("User not found");
+        }
+
+        userRepository.deleteById(id);
     }
 }
