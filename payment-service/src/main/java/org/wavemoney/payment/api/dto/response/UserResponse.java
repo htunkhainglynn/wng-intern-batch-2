@@ -1,4 +1,4 @@
 package org.wavemoney.payment.api.dto.response;
 
-public record UserResponse(String id, String name, String phone, String password, String nrc) {
+public record UserResponse(String id, String name, String phone, String password, String nrc, String level) {
 }

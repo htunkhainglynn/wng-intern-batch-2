@@ -10,6 +10,8 @@ import org.wavemoney.payment.api.repository.UserRepository;
 import org.wavemoney.payment.api.service.UserService;
 
 import java.time.LocalDateTime;
+import java.util.List;
+import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
@@ -35,8 +37,10 @@ public class UserServiceImpl implements UserService {
         return toResponse(saved);
     }
 
-    private UserResponse toResponse(User user) {
-        return new UserResponse(user.getId(), user.getName(), user.getPhone(), user.getPassword(), user.getNrc());
+    @Override
+    public List<UserResponse> getAllUsers() {
+        List<User> users = userRepository.findAll();
+        return toResponse(users);
     }
 
     @Override
@@ -104,5 +108,16 @@ public class UserServiceImpl implements UserService {
         }
 
         userRepository.deleteById(id);
+    }
+
+    private UserResponse toResponse(User user) {
+        return new UserResponse(user.getId(), user.getName(), user.getPhone(), user.getPassword(), user.getNrc(), user.getLevel());
+    }
+
+    private List<UserResponse> toResponse(List<User> users) {
+        return users
+                .stream()
+                .map(this::toResponse)
+                .collect(Collectors.toList());
     }
 }

@@ -23,5 +23,8 @@ public class User {
     private String nrc;
     private String password;
     private LocalDateTime createdAt;
+    private LocalDateTime updatedAt;
     private LocalDateTime lastLogin;
+    @Builder.Default
+    private String level = "1";
 }

@@ -3,6 +3,8 @@ package org.wavemoney.payment.api.service;
 import org.wavemoney.payment.api.dto.request.UserRequest;
 import org.wavemoney.payment.api.dto.response.UserResponse;
 
+import java.util.List;
+
 public interface UserService {
 
     UserResponse create(UserRequest request);
@@ -16,4 +18,6 @@ public interface UserService {
 
     void changePassword(String id, String oldPassword, String newPassword);
     void delete(String id);
+
+    List<UserResponse> getAllUsers();
 }
