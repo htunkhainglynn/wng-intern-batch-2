@@ -17,6 +17,5 @@ public record UserRequest(
 
         @NotBlank(message = "password is required")
         String password
-
 ) {
 }

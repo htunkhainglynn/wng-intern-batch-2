@@ -1,8 +1,2 @@
-.idea/.gitignore
-.idea/compiler.xml
-.idea/encodings.xml
-.idea/jarRepositories.xml
-.idea/misc.xml
-.idea/modules.xml
-.idea/vcs.xml
-.idea/wng-intern-batch-2.iml
+.idea/
+.junie/

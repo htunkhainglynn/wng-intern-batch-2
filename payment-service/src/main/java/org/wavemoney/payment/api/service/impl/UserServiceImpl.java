@@ -3,11 +3,14 @@ package org.wavemoney.payment.api.service.impl;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.wavemoney.payment.api.dto.request.UserRequest;
+import org.wavemoney.payment.api.dto.request.WalletRequest;
 import org.wavemoney.payment.api.dto.response.UserResponse;
+import org.wavemoney.payment.api.dto.response.WalletResponse;
 import org.wavemoney.payment.api.entity.User;
 import org.wavemoney.payment.api.exception.BusinessLogicException;
 import org.wavemoney.payment.api.repository.UserRepository;
 import org.wavemoney.payment.api.service.UserService;
+import org.wavemoney.payment.api.service.WalletService;
 
 import java.time.LocalDateTime;
 import java.util.List;
@@ -18,6 +21,7 @@ import java.util.stream.Collectors;
 public class UserServiceImpl implements UserService {
 
     private final UserRepository userRepository;
+    private final WalletService walletService;
 
     @Override
     public UserResponse create(UserRequest request) {
@@ -34,6 +38,7 @@ public class UserServiceImpl implements UserService {
                 .build();
 
         User saved = userRepository.save(user);
+        WalletResponse walletResponse = walletService.create(WalletRequest.builder().phoneNumber(saved.getPhone()).build());
         return toResponse(saved);
     }
 

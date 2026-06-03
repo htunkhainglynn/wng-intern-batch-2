@@ -34,7 +34,6 @@ public class UserController {
         return ResponseEntity.ok(ApiResponse.success(users));
     }
 
-
     @GetMapping("/{phone}")
     public ResponseEntity<ApiResponse<UserResponse>> getByPhone(@PathVariable String phone) {
         UserResponse user = userService.getByPhone(phone);
