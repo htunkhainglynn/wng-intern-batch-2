@@ -25,6 +25,5 @@ public class Wallet {
     private String status;
     private LocalDateTime createdAt;
     private LocalDateTime updateAt;
-
 }
 

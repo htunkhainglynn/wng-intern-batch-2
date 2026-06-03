@@ -8,7 +8,4 @@ import java.util.Optional;
 public interface UserRepository extends MongoRepository<User, String> {
     boolean existsByPhoneOrNrc(String phone, String nrc);
     Optional<User> findByPhone(String phone);
-    Optional<User> findByNrc(String nrc);
-
-    String nrc(String nrc);
 }
