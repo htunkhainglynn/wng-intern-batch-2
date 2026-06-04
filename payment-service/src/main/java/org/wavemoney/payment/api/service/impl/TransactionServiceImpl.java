@@ -1,14 +1,15 @@
 package org.wavemoney.payment.api.service.impl;
 
-import jakarta.validation.constraints.NotNull;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import org.wavemoney.payment.api.dto.request.CashInRequest;
 import org.wavemoney.payment.api.dto.response.TransactionResponse;
 import org.wavemoney.payment.api.dto.response.WalletResponse;
+import org.wavemoney.payment.api.entity.Transaction;
 import org.wavemoney.payment.api.entity.Wallet;
 import org.wavemoney.payment.api.exception.BusinessLogicException;
+import org.wavemoney.payment.api.repository.TransactionRepository;
 import org.wavemoney.payment.api.repository.WalletRepository;
 import org.wavemoney.payment.api.service.TransactionService;
 import org.wavemoney.payment.api.service.WalletService;
@@ -17,6 +18,7 @@ import org.wavemoney.payment.api.service.WalletService;
 @RequiredArgsConstructor
 public class TransactionServiceImpl implements TransactionService {
 
+    private final TransactionRepository transactionRepository;
     @Value("${transaction-amount.max}")
     private Double maxAmount;
 
@@ -41,12 +43,11 @@ public class TransactionServiceImpl implements TransactionService {
         validateUserWalletLimit(request);
 
         // TODO: subtract balance from sender wallet
+        subtractSenderBalance(request);
         // TODO: add balance to receiver wallet
-        // TODO: save transaction
-        // TODO: send event to Kafka for notification
-        // TODO: return transaction response
-
-        return null;
+        addBalanceToReceiverWallet(request);
+        // TODO: save transaction and return response
+        return SaveTransaction(request);
     }
 
     private void validateUserWalletLimit(CashInRequest request) {
@@ -71,5 +72,58 @@ public class TransactionServiceImpl implements TransactionService {
         } else  if (amount > maxAmount) {
             throw BusinessLogicException.business("INVALID_AMOUNT", "Amount must be less than " + maxAmount);
         }
+    }
+
+    private void subtractSenderBalance(CashInRequest request){
+        String userPhoneNumber = request.from();
+        WalletResponse wallet = walletService.getWalletByPhoneNumber(userPhoneNumber);
+        Double newBalance = wallet.balance() - request.amount();
+        updateBalanceByPhoneNumber(userPhoneNumber, newBalance);
+    }
+
+    private void addBalanceToReceiverWallet(CashInRequest request){
+        String userPhoneNumber = request.to();
+        WalletResponse wallet = walletService.getWalletByPhoneNumber(userPhoneNumber);
+        Double newBalance = wallet.balance() + request.amount();
+        updateBalanceByPhoneNumber(userPhoneNumber, newBalance);
+    }
+
+    private void updateBalanceByPhoneNumber(String phone, Double balance){
+        Wallet wallet = walletRepository.findByPhoneNumber(phone)
+                .orElseThrow(() -> BusinessLogicException.notFound("WALLET_NOT_FOUND", "Wallet with phone " + phone + " not found"));
+
+        wallet.setBalance(balance);
+        Wallet saved = walletRepository.save(wallet);
+        toResponse(saved);
+    }
+
+    private TransactionResponse SaveTransaction(CashInRequest request){
+        Transaction transaction = Transaction.builder()
+                .from(request.from())
+                .to(request.to())
+                .amount(request.amount())
+                .build();
+
+        Transaction saved = transactionRepository.save(transaction);
+        return toResponse(saved);
+    }
+
+    private TransactionResponse toResponse(Transaction transaction) {
+        return TransactionResponse.builder().transactionId(transaction.getTransactionId())
+                .from(transaction.getFrom())
+                .to(transaction.getTo())
+                .amount(transaction.getAmount())
+                .status(transaction.getStatus())
+                .transactionType(transaction.getTransactionType())
+                .transactionTime(transaction.getTransactionTime())
+                .build();
+    }
+
+    private WalletResponse toResponse(Wallet wallet) {
+        return WalletResponse.builder()
+                .phoneNumber(wallet.getPhoneNumber())
+                .balance(wallet.getBalance())
+                .status(wallet.getStatus())
+                .build();
     }
 }

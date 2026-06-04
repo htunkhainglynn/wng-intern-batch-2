@@ -15,4 +15,6 @@ public interface WalletRepository extends MongoRepository<Wallet, String> {
             fields = "{ 'status' : 1}"
     )
     WalletStatusProjection getStatusByPhoneNumber(String phone);
+
+
 }

@@ -1,5 +1,8 @@
 package org.wavemoney.payment.api.dto.response;
 
+import lombok.Builder;
+
+@Builder
 public record TransactionResponse(
         String transactionId,
         String from,
@@ -9,4 +12,5 @@ public record TransactionResponse(
         String transactionType,
         String transactionTime
 ) {
+
 }
