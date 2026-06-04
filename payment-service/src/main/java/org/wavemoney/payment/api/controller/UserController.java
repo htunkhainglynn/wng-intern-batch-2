@@ -7,6 +7,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import org.wavemoney.payment.api.dto.request.LoginRequest;
 import org.wavemoney.payment.api.dto.request.UserRequest;
+import org.wavemoney.payment.api.dto.request.UserUpdateRequest;
 import org.wavemoney.payment.api.dto.response.ApiResponse;
 import org.wavemoney.payment.api.dto.response.UserResponse;
 import org.wavemoney.payment.api.service.UserService;
@@ -33,8 +34,8 @@ public class UserController {
     }
 
     @PutMapping("/{phone}")
-    public ResponseEntity<ApiResponse<UserResponse>> update(@PathVariable String  phone, @Valid @RequestBody UserRequest request) {
-        UserResponse updated = userService.update(request);
+    public ResponseEntity<ApiResponse<UserResponse>> update(@Valid @RequestBody UserRequest request, @Valid @RequestBody UserUpdateRequest updReq) {
+        UserResponse updated = userService.update(request, updReq);
         return ResponseEntity.ok(ApiResponse.success(updated, HttpStatus.OK.value(), "User updated"));
     }
 
