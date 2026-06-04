@@ -12,7 +12,7 @@ public interface UserService {
 
     void logout(String id);
 
-    UserResponse update(String id, UserRequest request);
+    UserResponse update(UserRequest request);
 
     void changePassword(String id, String oldPassword, String newPassword);
     void delete(String id);

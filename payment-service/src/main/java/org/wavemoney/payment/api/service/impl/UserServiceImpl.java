@@ -36,7 +36,7 @@ public class UserServiceImpl implements UserService {
                 .build();
 
         User saved = userRepository.save(user);
-        WalletResponse walletResponse = walletService.create(WalletRequest.builder().phoneNumber(saved.getPhone()).build());
+        walletService.create(WalletRequest.builder().phoneNumber(saved.getPhone()).build());
         return toResponse(saved);
     }
 
@@ -76,14 +76,13 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
-    public UserResponse update(String id, UserRequest request) {
-        User user = userRepository.findById(id)
-                .orElseThrow(() -> BusinessLogicException.notFound("USER_NOT_FOUND", "User " + id + " not found"));
+    public UserResponse update(UserRequest request) {
+        User user = userRepository.findById(request.phone())
+                .orElseThrow(() -> BusinessLogicException.notFound("USER_NOT_FOUND", "User with phone number /' " + request.phone() + " /' not found"));
 
         user.setName(request.name());
         user.setPhone(request.phone());
         user.setNrc(request.nrc());
-
 
         User saved = userRepository.save(user);
         return toResponse(saved);
@@ -103,11 +102,12 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
-    public void delete(String id) {
-        if (!userRepository.existsById(id)) {
+    public void delete(String phone) {
+        if (!userRepository.existsByPhone(phone)) {
             throw new RuntimeException("User not found");
         }
 
-        userRepository.deleteById(id);
+        userRepository.deleteByPhone(phone);
+        walletService.deleteWalletByPhone(phone);
     }
 }

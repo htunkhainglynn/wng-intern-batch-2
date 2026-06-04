@@ -33,8 +33,8 @@ public class UserController {
     }
 
     @PutMapping("/{phone}")
-    public ResponseEntity<ApiResponse<UserResponse>> update(@PathVariable String phone, @Valid @RequestBody UserRequest request) {
-        UserResponse updated = userService.update(phone, request);
+    public ResponseEntity<ApiResponse<UserResponse>> update(@PathVariable String  phone, @Valid @RequestBody UserRequest request) {
+        UserResponse updated = userService.update(request);
         return ResponseEntity.ok(ApiResponse.success(updated, HttpStatus.OK.value(), "User updated"));
     }
 
@@ -52,8 +52,8 @@ public class UserController {
         return ResponseEntity.ok(ApiResponse.success(user, HttpStatus.OK.value(), "Login successful"));
     }
 
-    @PostMapping("/{phone}/logout")
-    public ResponseEntity<ApiResponse<String>> logout(@PathVariable String phone) {
+    @PostMapping("/logout")
+    public ResponseEntity<ApiResponse<String>> logout(@Valid @RequestBody String phone) {
         userService.logout(phone);
         return ResponseEntity.ok(ApiResponse.success("Logged out", HttpStatus.OK.value(), "Logged out"));
     }
