@@ -2,11 +2,11 @@ package org.wavemoney.payment.api.service.impl;
 
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
+import org.wavemoney.payment.api.dto.request.PinUpdateRequest;
 import org.wavemoney.payment.api.dto.request.UserRequest;
 import org.wavemoney.payment.api.dto.request.UserUpdateRequest;
 import org.wavemoney.payment.api.dto.request.WalletRequest;
 import org.wavemoney.payment.api.dto.response.UserResponse;
-import org.wavemoney.payment.api.dto.response.WalletResponse;
 import org.wavemoney.payment.api.entity.User;
 import org.wavemoney.payment.api.exception.BusinessLogicException;
 import org.wavemoney.payment.api.repository.UserRepository;
@@ -34,7 +34,7 @@ public class UserServiceImpl implements UserService {
                 .name(request.name())
                 .phone(request.phone())
                 .nrc(request.nrc())
-                .password(request.password())
+                .pin(request.pin())
                 .createdAt(LocalDateTime.now())
                 .build();
 
@@ -57,11 +57,11 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
-    public UserResponse login(String phone, String password) {
+    public UserResponse login(String phone, String pin) {
         User user = userRepository.findByPhone(phone)
                 .orElseThrow(() -> BusinessLogicException.auth("INVALID_CREDENTIALS", "Invalid credentials"));
 
-        if (!user.getPassword().equals(password)) {
+        if (!user.getPin().equals(pin)) {
             throw BusinessLogicException.auth("INVALID_CREDENTIALS", "Invalid credentials");
         }
 
@@ -86,22 +86,23 @@ public class UserServiceImpl implements UserService {
                 .orElseThrow(() -> BusinessLogicException.notFound("USER_NOT_FOUND", "User with phone number /' " + phone + " /' not found"));
 
         user.setName(updReq.name());
-        //user.setPassword(updReq.password());
+        //user.setPin(updReq.pin());
 
         User saved = userRepository.save(user);
         return toResponse(saved);
     }
 
     @Override
-    public void changePassword(String id, String oldPassword, String newPassword) {
-        User user = userRepository.findById(id)
-                .orElseThrow(() -> BusinessLogicException.notFound("USER_NOT_FOUND", "User " + id + " not found"));
-
-        if (!user.getPassword().equals(oldPassword)) {
-            throw BusinessLogicException.business("INVALID_PASSWORD", "Old password does not match");
+    public void changePin(PinUpdateRequest pinUpdateRequest) {
+        User user = userRepository.findByPhone(pinUpdateRequest.phone())
+                .orElseThrow(() -> BusinessLogicException.notFound("USER_NOT_FOUND", "User " + pinUpdateRequest.phone() + " not found"));
+        String oldPin = pinUpdateRequest.oldPin();
+        String newPin = pinUpdateRequest.newPin();
+        if (!user.getPin().equals(oldPin)) {
+            throw BusinessLogicException.business("INVALID_PIN", "Old pin does not match");
         }
 
-        user.setPassword(newPassword);
+        user.setPin(newPin);
         userRepository.save(user);
     }
 
@@ -116,7 +117,7 @@ public class UserServiceImpl implements UserService {
     }
 
     private UserResponse toResponse(User user) {
-        return new UserResponse(user.getId(), user.getName(), user.getPhone(), user.getPassword(), user.getNrc(), user.getLevel());
+        return new UserResponse(user.getId(), user.getName(), user.getPhone(), user.getPin(), user.getNrc(), user.getLevel());
     }
 
     private List<UserResponse> toResponse(List<User> users) {
