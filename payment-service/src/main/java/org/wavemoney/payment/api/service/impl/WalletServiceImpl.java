@@ -62,6 +62,11 @@ public class WalletServiceImpl implements WalletService {
     }
 
     @Override
+    public String getWalletStatusByPhone(String phone) {
+        return walletRepository.getStatusByPhoneNumber(phone).getStatus().orElseThrow(() -> BusinessLogicException.notFound("WALLET_NOT_FOUND", "Wallet with phone number " + phone + " not found"));
+    }
+
+    @Override
     public void deleteWalletByPhone(String phone) {
         Wallet wallet = walletRepository.findByPhoneNumber(phone).orElseThrow(() -> BusinessLogicException.notFound("WALLET_NOT_FOUND", "Wallet with phone number " + phone + " not found"));
         walletRepository.delete(wallet);

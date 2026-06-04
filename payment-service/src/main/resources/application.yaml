@@ -24,7 +24,11 @@ spring:
 server:
   port: 8080
 
+transaction-amount:
+  min: 0
+  max: 300000
 
+wallet-limit: 10000000
 
 logging:
   level:

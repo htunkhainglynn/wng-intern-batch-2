@@ -49,8 +49,7 @@ public class UserController {
     }
 
     @PutMapping("/change-pin")
-    public ResponseEntity<ApiResponse<String>> changePin(
-                                                         @Valid @RequestBody PinUpdateRequest pinUpdateRequest) {
+    public ResponseEntity<ApiResponse<String>> changePin(@Valid @RequestBody PinUpdateRequest pinUpdateRequest) {
         userService.changePin(pinUpdateRequest);
         return ResponseEntity.ok(ApiResponse.success("Pin changed", HttpStatus.OK.value(), "Pin changed"));
     }
