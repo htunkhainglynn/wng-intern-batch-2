@@ -7,6 +7,8 @@ import org.wavemoney.payment.api.dto.response.ApiResponse;
 import org.wavemoney.payment.api.dto.response.WalletResponse;
 import org.wavemoney.payment.api.service.WalletService;
 
+import java.util.List;
+
 @RestController
 @RequestMapping("/api/v1/wallets")
 @RequiredArgsConstructor
@@ -20,5 +22,9 @@ public class WalletController {
 		return ResponseEntity.ok(ApiResponse.success(wallet));
 	}
 
-
+	@GetMapping()
+	public ResponseEntity<ApiResponse<List<WalletResponse>>> getAllWallets() {
+		List<WalletResponse> wallets = walletService.getAllWallets();
+		return ResponseEntity.ok(ApiResponse.success(wallets));
+	}
 }
