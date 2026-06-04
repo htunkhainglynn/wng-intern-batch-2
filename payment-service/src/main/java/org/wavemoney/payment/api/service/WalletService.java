@@ -14,4 +14,6 @@ public interface WalletService {
     void deleteWalletByPhone(String phone);
 
     List<WalletResponse> getAllWallets();
+
+    String getWalletStatusByPhone(String phone);
 }
