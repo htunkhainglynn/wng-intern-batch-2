@@ -13,7 +13,7 @@ public interface UserService {
 
     void logout(String id);
 
-    UserResponse update(UserRequest request, UserUpdateRequest updReq);
+    UserResponse update(String phone, UserUpdateRequest updReq);
 
     void changePassword(String id, String oldPassword, String newPassword);
     void delete(String id);

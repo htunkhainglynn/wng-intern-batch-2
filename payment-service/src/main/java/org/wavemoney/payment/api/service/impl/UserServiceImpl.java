@@ -77,12 +77,12 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
-    public UserResponse update(UserRequest request, UserUpdateRequest updReq) {
-        User user = userRepository.findByPhone(request.phone())
-                .orElseThrow(() -> BusinessLogicException.notFound("USER_NOT_FOUND", "User with phone number /' " + request.phone() + " /' not found"));
+    public UserResponse update(String phone, UserUpdateRequest updReq) {
+        User user = userRepository.findByPhone(phone)
+                .orElseThrow(() -> BusinessLogicException.notFound("USER_NOT_FOUND", "User with phone number /' " + phone + " /' not found"));
 
         user.setName(updReq.name());
-        user.setPassword(updReq.password());
+        //user.setPassword(updReq.password());
 
         User saved = userRepository.save(user);
         return toResponse(saved);

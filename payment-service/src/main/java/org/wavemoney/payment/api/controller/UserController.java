@@ -34,8 +34,8 @@ public class UserController {
     }
 
     @PutMapping("/{phone}")
-    public ResponseEntity<ApiResponse<UserResponse>> update(@Valid @RequestBody UserRequest request, @Valid @RequestBody UserUpdateRequest updReq) {
-        UserResponse updated = userService.update(request, updReq);
+    public ResponseEntity<ApiResponse<UserResponse>> update(@PathVariable String phone, @Valid @RequestBody UserUpdateRequest updReq) {
+        UserResponse updated = userService.update(phone, updReq);
         return ResponseEntity.ok(ApiResponse.success(updated, HttpStatus.OK.value(), "User updated"));
     }
 
