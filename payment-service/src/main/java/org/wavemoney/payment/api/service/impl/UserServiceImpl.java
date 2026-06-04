@@ -3,6 +3,7 @@ package org.wavemoney.payment.api.service.impl;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.wavemoney.payment.api.dto.request.UserRequest;
+import org.wavemoney.payment.api.dto.request.UserUpdateRequest;
 import org.wavemoney.payment.api.dto.request.WalletRequest;
 import org.wavemoney.payment.api.dto.response.UserResponse;
 import org.wavemoney.payment.api.dto.response.WalletResponse;
@@ -76,13 +77,12 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
-    public UserResponse update(UserRequest request) {
-        User user = userRepository.findById(request.phone())
+    public UserResponse update(UserRequest request, UserUpdateRequest updReq) {
+        User user = userRepository.findByPhone(request.phone())
                 .orElseThrow(() -> BusinessLogicException.notFound("USER_NOT_FOUND", "User with phone number /' " + request.phone() + " /' not found"));
 
-        user.setName(request.name());
-        user.setPhone(request.phone());
-        user.setNrc(request.nrc());
+        user.setName(updReq.name());
+        user.setPassword(updReq.password());
 
         User saved = userRepository.save(user);
         return toResponse(saved);

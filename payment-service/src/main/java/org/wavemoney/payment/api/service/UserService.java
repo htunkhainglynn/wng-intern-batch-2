@@ -1,6 +1,7 @@
 package org.wavemoney.payment.api.service;
 
 import org.wavemoney.payment.api.dto.request.UserRequest;
+import org.wavemoney.payment.api.dto.request.UserUpdateRequest;
 import org.wavemoney.payment.api.dto.response.UserResponse;
 
 public interface UserService {
@@ -12,7 +13,7 @@ public interface UserService {
 
     void logout(String id);
 
-    UserResponse update(UserRequest request);
+    UserResponse update(UserRequest request, UserUpdateRequest updReq);
 
     void changePassword(String id, String oldPassword, String newPassword);
     void delete(String id);
