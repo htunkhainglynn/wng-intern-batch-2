@@ -6,6 +6,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import org.wavemoney.payment.api.dto.request.LoginRequest;
+import org.wavemoney.payment.api.dto.request.PinUpdateRequest;
 import org.wavemoney.payment.api.dto.request.UserRequest;
 import org.wavemoney.payment.api.dto.request.UserUpdateRequest;
 import org.wavemoney.payment.api.dto.response.ApiResponse;
@@ -47,17 +48,16 @@ public class UserController {
         return ResponseEntity.ok(ApiResponse.success(updated, HttpStatus.OK.value(), "User updated"));
     }
 
-    @PutMapping("/{phone}/password")
-    public ResponseEntity<ApiResponse<String>> changePassword(@PathVariable String phone,
-                                                              @RequestBody String oldPassword,
-                                                              @RequestBody String newPassword) {
-        userService.changePassword(phone, oldPassword, newPassword);
-        return ResponseEntity.ok(ApiResponse.success("Password changed", HttpStatus.OK.value(), "Password changed"));
+    @PutMapping("/change-pin")
+    public ResponseEntity<ApiResponse<String>> changePin(
+                                                         @Valid @RequestBody PinUpdateRequest pinUpdateRequest) {
+        userService.changePin(pinUpdateRequest);
+        return ResponseEntity.ok(ApiResponse.success("Pin changed", HttpStatus.OK.value(), "Pin changed"));
     }
 
     @PostMapping("/login")
     public ResponseEntity<ApiResponse<UserResponse>> login(@RequestBody LoginRequest request) {
-        UserResponse user = userService.login(request.phone(), request.password());
+        UserResponse user = userService.login(request.phone(), request.pin());
         return ResponseEntity.ok(ApiResponse.success(user, HttpStatus.OK.value(), "Login successful"));
     }
 

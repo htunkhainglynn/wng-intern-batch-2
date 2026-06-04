@@ -14,7 +14,7 @@ public record UserRequest(
         @NotBlank(message = "NRC is required")
         String nrc,
 
-        @NotBlank(message = "password is required")
-        String password
+        @NotBlank(message = "pin is required")
+        String pin
 ) {
 }
