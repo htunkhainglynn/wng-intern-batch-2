@@ -16,6 +16,7 @@ public record WalletRequest (
 
     @NotNull(message = "Currency is required")
     Currency currency,
+
     WalletStatus status
 ) {
 }

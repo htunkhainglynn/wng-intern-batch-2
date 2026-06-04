@@ -3,6 +3,7 @@ package org.wavemoney.payment.api.service.impl;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.wavemoney.payment.api.dto.request.UserRequest;
+import org.wavemoney.payment.api.dto.request.UserUpdateRequest;
 import org.wavemoney.payment.api.dto.request.WalletRequest;
 import org.wavemoney.payment.api.dto.response.UserResponse;
 import org.wavemoney.payment.api.dto.response.WalletResponse;
@@ -38,7 +39,7 @@ public class UserServiceImpl implements UserService {
                 .build();
 
         User saved = userRepository.save(user);
-        WalletResponse walletResponse = walletService.create(WalletRequest.builder().phoneNumber(saved.getPhone()).build());
+        walletService.create(WalletRequest.builder().phoneNumber(saved.getPhone()).build());
         return toResponse(saved);
     }
 
@@ -80,14 +81,12 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
-    public UserResponse update(String id, UserRequest request) {
-        User user = userRepository.findById(id)
-                .orElseThrow(() -> BusinessLogicException.notFound("USER_NOT_FOUND", "User " + id + " not found"));
+    public UserResponse update(String phone, UserUpdateRequest updReq) {
+        User user = userRepository.findByPhone(phone)
+                .orElseThrow(() -> BusinessLogicException.notFound("USER_NOT_FOUND", "User with phone number /' " + phone + " /' not found"));
 
-        user.setName(request.name());
-        user.setPhone(request.phone());
-        user.setNrc(request.nrc());
-
+        user.setName(updReq.name());
+        //user.setPassword(updReq.password());
 
         User saved = userRepository.save(user);
         return toResponse(saved);
@@ -107,12 +106,13 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
-    public void delete(String id) {
-        if (!userRepository.existsById(id)) {
+    public void delete(String phone) {
+        if (!userRepository.existsByPhone(phone)) {
             throw new RuntimeException("User not found");
         }
 
-        userRepository.deleteById(id);
+        userRepository.deleteByPhone(phone);
+        walletService.deleteWalletByPhone(phone);
     }
 
     private UserResponse toResponse(User user) {

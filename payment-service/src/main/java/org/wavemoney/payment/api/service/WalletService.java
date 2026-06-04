@@ -8,4 +8,6 @@ public interface WalletService {
     WalletResponse create(WalletRequest request);
 
     WalletResponse getWalletByPhoneNumber(String phoneNumber);
+
+    void deleteWalletByPhone(String phone);
 }

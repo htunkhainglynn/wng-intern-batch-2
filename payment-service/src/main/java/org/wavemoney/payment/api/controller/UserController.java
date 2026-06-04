@@ -7,6 +7,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import org.wavemoney.payment.api.dto.request.LoginRequest;
 import org.wavemoney.payment.api.dto.request.UserRequest;
+import org.wavemoney.payment.api.dto.request.UserUpdateRequest;
 import org.wavemoney.payment.api.dto.response.ApiResponse;
 import org.wavemoney.payment.api.dto.response.UserResponse;
 import org.wavemoney.payment.api.service.UserService;
@@ -41,8 +42,8 @@ public class UserController {
     }
 
     @PutMapping("/{phone}")
-    public ResponseEntity<ApiResponse<UserResponse>> update(@PathVariable String phone, @Valid @RequestBody UserRequest request) {
-        UserResponse updated = userService.update(phone, request);
+    public ResponseEntity<ApiResponse<UserResponse>> update(@PathVariable String phone, @Valid @RequestBody UserUpdateRequest updReq) {
+        UserResponse updated = userService.update(phone, updReq);
         return ResponseEntity.ok(ApiResponse.success(updated, HttpStatus.OK.value(), "User updated"));
     }
 
@@ -60,8 +61,8 @@ public class UserController {
         return ResponseEntity.ok(ApiResponse.success(user, HttpStatus.OK.value(), "Login successful"));
     }
 
-    @PostMapping("/{phone}/logout")
-    public ResponseEntity<ApiResponse<String>> logout(@PathVariable String phone) {
+    @PostMapping("/logout")
+    public ResponseEntity<ApiResponse<String>> logout(@Valid @RequestBody String phone) {
         userService.logout(phone);
         return ResponseEntity.ok(ApiResponse.success("Logged out", HttpStatus.OK.value(), "Logged out"));
     }
