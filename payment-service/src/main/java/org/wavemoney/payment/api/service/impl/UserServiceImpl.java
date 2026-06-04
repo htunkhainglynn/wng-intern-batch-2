@@ -53,7 +53,11 @@ public class UserServiceImpl implements UserService {
     public UserResponse getByPhone(String phone) {
         User user = userRepository.findByPhone(phone)
                 .orElseThrow(() -> BusinessLogicException.notFound("USER_NOT_FOUND", "User with phone " + phone + " not found"));
-        return toResponse(user);
+
+        // wallet status
+        String walletStatus = walletService.getWalletStatusByPhone(phone);
+
+        return toResponse(user, walletStatus);
     }
 
     @Override
@@ -117,7 +121,18 @@ public class UserServiceImpl implements UserService {
     }
 
     private UserResponse toResponse(User user) {
-        return new UserResponse(user.getId(), user.getName(), user.getPhone(), user.getPin(), user.getNrc(), user.getLevel());
+
+        return UserResponse.builder().name(user.getName())
+                .phone(user.getPhone())
+                .level(user.getLevel()).build();
+    }
+
+
+    private UserResponse toResponse(User user, String walletStatus) {
+        return UserResponse.builder().name(user.getName())
+                .phone(user.getPhone())
+                .walletStatus(walletStatus)
+                .level(user.getLevel()).build();
     }
 
     private List<UserResponse> toResponse(List<User> users) {

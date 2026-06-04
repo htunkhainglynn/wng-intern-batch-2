@@ -1,4 +1,13 @@
 package org.wavemoney.payment.api.dto.response;
 
-public record UserResponse(String id, String name, String phone, String pin, String nrc, String level) {
+import lombok.Builder;
+import lombok.Data;
+
+@Builder
+@Data
+public class UserResponse {
+    private String name;
+    private String walletStatus;
+    private String phone;
+    private String level;
 }
