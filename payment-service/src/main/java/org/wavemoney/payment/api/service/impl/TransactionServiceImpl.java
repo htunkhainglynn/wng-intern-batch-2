@@ -20,6 +20,8 @@ import org.wavemoney.payment.api.service.TransactionService;
 import org.wavemoney.payment.api.service.WalletService;
 
 import java.time.LocalDateTime;
+import java.util.List;
+import java.util.Optional;
 
 @Service
 @RequiredArgsConstructor
@@ -75,6 +77,11 @@ public class TransactionServiceImpl implements TransactionService {
         return saveAdjustmentTransaction(request);
     }
 
+    @Override
+    public List<TransactionResponse> getAllTransactions() {
+        List<Transaction> transactions =  transactionRepository.findAll();
+        return toResponse(transactions);
+    }
 
     private void validateDifferentWallet(CashInRequest request) {
         String from = request.from();
@@ -178,4 +185,10 @@ public class TransactionServiceImpl implements TransactionService {
                 .build();
     }
 
+    private List<TransactionResponse> toResponse(List<Transaction> transactions) {
+        return transactions
+                .stream()
+                .map(this::toResponse)
+                .toList();
+    }
 }
