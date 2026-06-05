@@ -112,7 +112,7 @@ public class UserServiceImpl implements UserService {
     @Override
     public void delete(String phone) {
         if (!userRepository.existsByPhone(phone)) {
-            throw new RuntimeException("User not found");
+            throw BusinessLogicException.business("USER_NOT_FOUND", "User with phone " + phone + " not found");
         }
 
         userRepository.deleteByPhone(phone);

@@ -32,4 +32,5 @@ public class BusinessLogicException extends RuntimeException {
     public static BusinessLogicException validation(String code, String message) {
         return new BusinessLogicException(code, message, ErrorCategory.VALIDATION, HttpStatus.BAD_REQUEST);
     }
+
 }
