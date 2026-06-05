@@ -33,6 +33,8 @@ public class TransactionServiceImpl implements TransactionService {
 
     @Override
     public TransactionResponse cashIn(CashInRequest request) {
+
+        validateDifferentWallet(request);
         // TODO: amount limit check
         validateAmountLimit(request.amount());
 
@@ -48,6 +50,14 @@ public class TransactionServiceImpl implements TransactionService {
         addBalanceToReceiverWallet(request);
         // TODO: save transaction and return response
         return SaveTransaction(request);
+    }
+
+    private void validateDifferentWallet(CashInRequest request) {
+        String from = request.from();
+        String to = request.to();
+        if(from.equals(to)) {
+            throw BusinessLogicException.business("INVALID_REQUEST", "Sender and receiver wallets cannot be the same");
+        }
     }
 
     private void validateUserWalletLimit(CashInRequest request) {
@@ -93,6 +103,7 @@ public class TransactionServiceImpl implements TransactionService {
                 .orElseThrow(() -> BusinessLogicException.notFound("WALLET_NOT_FOUND", "Wallet with phone " + phone + " not found"));
 
         wallet.setBalance(balance);
+        wallet.setStatus("SUCCESS");
         Wallet saved = walletRepository.save(wallet);
         toResponse(saved);
     }
