@@ -2,6 +2,8 @@ package org.wavemoney.payment.api.dto.response;
 
 import lombok.Builder;
 
+import java.time.LocalDateTime;
+
 
 @Builder
 public record TransactionResponse(
@@ -12,7 +14,7 @@ public record TransactionResponse(
 
         String status,
         String transactionType,
-        String transactionTime
+        LocalDateTime transactionTime
 ) {
 
 }

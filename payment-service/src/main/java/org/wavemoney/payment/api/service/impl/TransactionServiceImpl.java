@@ -2,23 +2,31 @@ package org.wavemoney.payment.api.service.impl;
 
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.kafka.core.KafkaTemplate;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 import org.wavemoney.payment.api.dto.request.CashInRequest;
 import org.wavemoney.payment.api.dto.response.TransactionResponse;
 import org.wavemoney.payment.api.dto.response.WalletResponse;
 import org.wavemoney.payment.api.entity.Transaction;
 import org.wavemoney.payment.api.entity.Wallet;
+import org.wavemoney.payment.api.enums.TransactionStatus;
+import org.wavemoney.payment.api.enums.TransactionType;
 import org.wavemoney.payment.api.exception.BusinessLogicException;
 import org.wavemoney.payment.api.repository.TransactionRepository;
 import org.wavemoney.payment.api.repository.WalletRepository;
 import org.wavemoney.payment.api.service.TransactionService;
 import org.wavemoney.payment.api.service.WalletService;
 
+import java.time.LocalDateTime;
+
 @Service
 @RequiredArgsConstructor
 public class TransactionServiceImpl implements TransactionService {
 
     private final TransactionRepository transactionRepository;
+    private final KafkaTemplate kafkaTemplate;
+
     @Value("${transaction-amount.max}")
     private Double maxAmount;
 
@@ -32,6 +40,7 @@ public class TransactionServiceImpl implements TransactionService {
     private final WalletService walletService;
 
     @Override
+    @Transactional
     public TransactionResponse cashIn(CashInRequest request) {
 
 
@@ -51,7 +60,7 @@ public class TransactionServiceImpl implements TransactionService {
         // TODO: add balance to receiver wallet
         addBalanceToReceiverWallet(request);
         // TODO: save transaction and return response
-        return SaveTransaction(request);
+        return saveTransaction(request);
     }
 
     private void validateDifferentWallet(CashInRequest request) {
@@ -98,6 +107,7 @@ public class TransactionServiceImpl implements TransactionService {
         WalletResponse wallet = walletService.getWalletByPhoneNumber(userPhoneNumber);
         Double newBalance = wallet.balance() + request.amount();
         updateBalanceByPhoneNumber(userPhoneNumber, newBalance);
+        throw BusinessLogicException.business("TEST_ATOMIC", "Testing atomic.");
     }
 
     private void updateBalanceByPhoneNumber(String phone, Double balance){
@@ -105,19 +115,29 @@ public class TransactionServiceImpl implements TransactionService {
                 .orElseThrow(() -> BusinessLogicException.notFound("WALLET_NOT_FOUND", "Wallet with phone " + phone + " not found"));
 
         wallet.setBalance(balance);
-        wallet.setStatus("SUCCESS");
-        Wallet saved = walletRepository.save(wallet);
-        toResponse(saved);
+        walletRepository.save(wallet);
+//        try {
+//            walletRepository.save(wallet);
+//        } catch (Exception e) {
+//            throw BusinessLogicException.database("DATABASE_ERROR", "Failed to update wallet balance: " + e.getMessage());
+//        }
     }
 
-    private TransactionResponse SaveTransaction(CashInRequest request){
+    private TransactionResponse saveTransaction(CashInRequest request){
         Transaction transaction = Transaction.builder()
                 .from(request.from())
                 .to(request.to())
                 .amount(request.amount())
+                .status(TransactionStatus.SUCCESS.name())
+                .transactionType(TransactionType.CASH_IN.name())
+                .transactionTime(LocalDateTime.now())
                 .build();
 
         Transaction saved = transactionRepository.save(transaction);
+
+        // send event to kafka
+       // kafkaTemplate.send("transaction-events", saved);
+
         return toResponse(saved);
     }
 

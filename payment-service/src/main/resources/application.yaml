@@ -19,13 +19,13 @@ spring:
       value-deserializer: org.apache.kafka.common.serialization.StringDeserializer
 
   mongodb:
-    uri: mongodb://admin:password@localhost:27017/payment?authSource=admin
+    uri: mongodb://admin:password@localhost:27017/payment?authSource=admin?replicaSet=rs0
 
 server:
   port: 8080
 
 transaction-amount:
-  min: 0
+  min: 1
   max: 300000
 
 wallet-limit: 10000000
