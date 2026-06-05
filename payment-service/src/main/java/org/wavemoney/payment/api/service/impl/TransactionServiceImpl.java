@@ -8,11 +8,15 @@ import org.wavemoney.payment.api.dto.response.TransactionResponse;
 import org.wavemoney.payment.api.dto.response.WalletResponse;
 import org.wavemoney.payment.api.entity.Transaction;
 import org.wavemoney.payment.api.entity.Wallet;
+import org.wavemoney.payment.api.enums.TransactionStatus;
+import org.wavemoney.payment.api.enums.TransactionType;
 import org.wavemoney.payment.api.exception.BusinessLogicException;
 import org.wavemoney.payment.api.repository.TransactionRepository;
 import org.wavemoney.payment.api.repository.WalletRepository;
 import org.wavemoney.payment.api.service.TransactionService;
 import org.wavemoney.payment.api.service.WalletService;
+
+import java.time.LocalDateTime;
 
 @Service
 @RequiredArgsConstructor
@@ -33,7 +37,6 @@ public class TransactionServiceImpl implements TransactionService {
 
     @Override
     public TransactionResponse cashIn(CashInRequest request) {
-
 
         validateDifferentWallet(request);
 
@@ -63,16 +66,16 @@ public class TransactionServiceImpl implements TransactionService {
     }
 
     private void validateUserWalletLimit(CashInRequest request) {
-        String userPhoneNumber = request.from();
-        WalletResponse wallet = walletService.getWalletByPhoneNumber(userPhoneNumber);
+        String userPhone = request.from();
+        WalletResponse wallet = walletService.getWalletByPhone(userPhone);
         if (walletLimit < wallet.balance() + request.amount()) {
             throw BusinessLogicException.business("WALLET_LIMIT_EXCEEDED", "Wallet limit exceeded");
         }
     }
 
     private void validateInsufficientBalance(CashInRequest request) {
-        String userPhoneNumber = request.from();
-        WalletResponse wallet = walletService.getWalletByPhoneNumber(userPhoneNumber);
+        String userPhone = request.from();
+        WalletResponse wallet = walletService.getWalletByPhone(userPhone);
         if (wallet.balance() < request.amount()) {
             throw BusinessLogicException.business("INSUFFICIENT_BALANCE", "Insufficient balance");
         }
@@ -87,27 +90,25 @@ public class TransactionServiceImpl implements TransactionService {
     }
 
     private void subtractSenderBalance(CashInRequest request){
-        String userPhoneNumber = request.from();
-        WalletResponse wallet = walletService.getWalletByPhoneNumber(userPhoneNumber);
+        String userPhone = request.from();
+        WalletResponse wallet = walletService.getWalletByPhone(userPhone);
         Double newBalance = wallet.balance() - request.amount();
-        updateBalanceByPhoneNumber(userPhoneNumber, newBalance);
+        updateBalanceByPhone(userPhone, newBalance);
     }
 
     private void addBalanceToReceiverWallet(CashInRequest request){
-        String userPhoneNumber = request.to();
-        WalletResponse wallet = walletService.getWalletByPhoneNumber(userPhoneNumber);
+        String userPhone = request.to();
+        WalletResponse wallet = walletService.getWalletByPhone(userPhone);
         Double newBalance = wallet.balance() + request.amount();
-        updateBalanceByPhoneNumber(userPhoneNumber, newBalance);
+        updateBalanceByPhone(userPhone, newBalance);
     }
 
-    private void updateBalanceByPhoneNumber(String phone, Double balance){
-        Wallet wallet = walletRepository.findByPhoneNumber(phone)
+    private void updateBalanceByPhone(String phone, Double balance){
+        Wallet wallet = walletRepository.findByPhone(phone)
                 .orElseThrow(() -> BusinessLogicException.notFound("WALLET_NOT_FOUND", "Wallet with phone " + phone + " not found"));
 
         wallet.setBalance(balance);
-        wallet.setStatus("SUCCESS");
-        Wallet saved = walletRepository.save(wallet);
-        toResponse(saved);
+        walletRepository.save(wallet);
     }
 
     private TransactionResponse SaveTransaction(CashInRequest request){
@@ -115,6 +116,9 @@ public class TransactionServiceImpl implements TransactionService {
                 .from(request.from())
                 .to(request.to())
                 .amount(request.amount())
+                .status(TransactionStatus.SUCCESS.name())
+                .transactionType(TransactionType.CASH_IN.name())
+                .transactionTime(LocalDateTime.now())
                 .build();
 
         Transaction saved = transactionRepository.save(transaction);
@@ -129,14 +133,6 @@ public class TransactionServiceImpl implements TransactionService {
                 .status(transaction.getStatus())
                 .transactionType(transaction.getTransactionType())
                 .transactionTime(transaction.getTransactionTime())
-                .build();
-    }
-
-    private WalletResponse toResponse(Wallet wallet) {
-        return WalletResponse.builder()
-                .phoneNumber(wallet.getPhoneNumber())
-                .balance(wallet.getBalance())
-                .status(wallet.getStatus())
                 .build();
     }
 

@@ -9,7 +9,7 @@ public interface WalletService {
 
     WalletResponse create(WalletRequest request);
 
-    WalletResponse getWalletByPhoneNumber(String phoneNumber);
+    WalletResponse getWalletByPhone(String phone);
 
     void deleteWalletByPhone(String phone);
 

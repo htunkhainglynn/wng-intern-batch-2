@@ -14,9 +14,8 @@ public record UserRequest(
         @NotBlank(message = "NRC is required")
         String nrc,
 
+        @Pattern(regexp = "^(?!.*([0-9])\\1{3}).*$", message = "pin must be 4 digits")
         @NotBlank(message = "pin is required")
-        @Pattern(regexp = "^[0-9]{4}$", message = "pin must be 4 digits")
-        @Pattern(regexp = "^(?!.*([0-9])\\1{3}).*$", message = "pin cannot have repeating digits")
         String pin
 ) {
 }

@@ -19,7 +19,7 @@ public class Wallet {
 
     @Id
     private String walletId;
-    private String phoneNumber;
+    private String phone;
     private double balance;
     private String currency;
     private String status;

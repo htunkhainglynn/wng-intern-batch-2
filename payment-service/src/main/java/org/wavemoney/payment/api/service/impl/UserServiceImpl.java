@@ -8,6 +8,7 @@ import org.wavemoney.payment.api.dto.request.UserUpdateRequest;
 import org.wavemoney.payment.api.dto.request.WalletRequest;
 import org.wavemoney.payment.api.dto.response.UserResponse;
 import org.wavemoney.payment.api.entity.User;
+import org.wavemoney.payment.api.enums.WalletStatus;
 import org.wavemoney.payment.api.exception.BusinessLogicException;
 import org.wavemoney.payment.api.repository.UserRepository;
 import org.wavemoney.payment.api.service.UserService;
@@ -39,8 +40,8 @@ public class UserServiceImpl implements UserService {
                 .build();
 
         User saved = userRepository.save(user);
-        walletService.create(WalletRequest.builder().phoneNumber(saved.getPhone()).build());
-        return toResponse(saved);
+        walletService.create(WalletRequest.builder().phone(saved.getPhone()).build());
+        return toResponse(saved, WalletStatus.ACTIVE.name());
     }
 
     @Override
@@ -56,7 +57,6 @@ public class UserServiceImpl implements UserService {
 
         // wallet status
         String walletStatus = walletService.getWalletStatusByPhone(phone);
-
         return toResponse(user, walletStatus);
     }
 
@@ -71,8 +71,8 @@ public class UserServiceImpl implements UserService {
 
         user.setLastLogin(LocalDateTime.now());
         userRepository.save(user);
-
-        return toResponse(user);
+        String walletStatus = walletService.getWalletStatusByPhone(phone);
+        return toResponse(user, walletStatus);
     }
 
     @Override
@@ -90,9 +90,9 @@ public class UserServiceImpl implements UserService {
                 .orElseThrow(() -> BusinessLogicException.notFound("USER_NOT_FOUND", "User with phone number /' " + phone + " /' not found"));
 
         user.setName(updReq.name());
-
         User saved = userRepository.save(user);
-        return toResponse(saved);
+        String walletStatus = walletService.getWalletStatusByPhone(phone);
+        return toResponse(saved, walletStatus);
     }
 
     @Override
@@ -120,12 +120,10 @@ public class UserServiceImpl implements UserService {
     }
 
     private UserResponse toResponse(User user) {
-
         return UserResponse.builder().name(user.getName())
                 .phone(user.getPhone())
                 .level(user.getLevel()).build();
     }
-
 
     private UserResponse toResponse(User user, String walletStatus) {
         return UserResponse.builder().name(user.getName())
@@ -137,7 +135,7 @@ public class UserServiceImpl implements UserService {
     private List<UserResponse> toResponse(List<User> users) {
         return users
                 .stream()
-                .map(this::toResponse)
+                .map(u -> toResponse(u, walletService.getWalletStatusByPhone(u.getPhone())))
                 .collect(Collectors.toList());
     }
 }

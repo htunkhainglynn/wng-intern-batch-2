@@ -8,13 +8,12 @@ import org.wavemoney.payment.api.entity.Wallet;
 import java.util.Optional;
 
 public interface WalletRepository extends MongoRepository<Wallet, String> {
-	Optional<Wallet> findByPhoneNumber(String phoneNumber);
+	Optional<Wallet> findByPhone(String phone);
 
+    //fetch status only for user
     @Query(
-            value = "{ 'phoneNumber' : ?0 }",
+            value = "{ 'phone' : ?0 }",
             fields = "{ 'status' : 1}"
     )
-    WalletStatusProjection getStatusByPhoneNumber(String phone);
-
-
+    WalletStatusProjection getStatusByPhone(String phone);
 }

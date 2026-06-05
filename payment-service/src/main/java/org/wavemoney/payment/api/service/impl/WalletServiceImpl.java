@@ -28,7 +28,7 @@ public class WalletServiceImpl implements WalletService {
 
         Wallet wallet = Wallet.builder()
                 .walletId(id)
-                .phoneNumber(request.phoneNumber())
+                .phone(request.phone())
                 .balance(request.balance())
                 .currency(Currency.MMK.name())
                 .status(WalletStatus.ACTIVE.name())
@@ -39,7 +39,7 @@ public class WalletServiceImpl implements WalletService {
     }
 
     private WalletResponse toResponse(Wallet saved) {
-        return new WalletResponse(saved.getWalletId(), saved.getPhoneNumber(), saved.getBalance(), saved.getCurrency(), saved.getStatus());
+        return new WalletResponse(saved.getWalletId(), saved.getPhone(), saved.getBalance(), saved.getCurrency(), saved.getStatus());
     }
 
     private List<WalletResponse> toResponse(List<Wallet> wallets) {
@@ -50,8 +50,8 @@ public class WalletServiceImpl implements WalletService {
     }
 
     @Override
-    public WalletResponse getWalletByPhoneNumber(String phoneNumber) {
-        Wallet wallet = walletRepository.findByPhoneNumber(phoneNumber).orElseThrow(() -> BusinessLogicException.notFound("WALLET_NOT_FOUND", "Wallet with phone number " + phoneNumber + " not found"));
+    public WalletResponse getWalletByPhone(String phone) {
+        Wallet wallet = walletRepository.findByPhone(phone).orElseThrow(() -> BusinessLogicException.notFound("WALLET_NOT_FOUND", "Wallet with phone number " + phone + " not found"));
         return toResponse(wallet);
     }
 
@@ -63,12 +63,12 @@ public class WalletServiceImpl implements WalletService {
 
     @Override
     public String getWalletStatusByPhone(String phone) {
-        return walletRepository.getStatusByPhoneNumber(phone).getStatus().orElseThrow(() -> BusinessLogicException.notFound("WALLET_NOT_FOUND", "Wallet with phone number " + phone + " not found"));
+        return walletRepository.getStatusByPhone(phone).getStatus().orElseThrow(() -> BusinessLogicException.notFound("WALLET_NOT_FOUND", "Wallet with phone number " + phone + " not found"));
     }
 
     @Override
     public void deleteWalletByPhone(String phone) {
-        Wallet wallet = walletRepository.findByPhoneNumber(phone).orElseThrow(() -> BusinessLogicException.notFound("WALLET_NOT_FOUND", "Wallet with phone number " + phone + " not found"));
+        Wallet wallet = walletRepository.findByPhone(phone).orElseThrow(() -> BusinessLogicException.notFound("WALLET_NOT_FOUND", "Wallet with phone number " + phone + " not found"));
         walletRepository.delete(wallet);
     }
 

@@ -16,9 +16,9 @@ public class WalletController {
 
 	private final WalletService walletService;
 
-	@GetMapping("/{phoneNumber}")
-	public ResponseEntity<ApiResponse<WalletResponse>> getWalletByPhoneNumber(@PathVariable String phoneNumber) {
-		WalletResponse wallet = walletService.getWalletByPhoneNumber(phoneNumber);
+	@GetMapping("/{phone}")
+	public ResponseEntity<ApiResponse<WalletResponse>> getWalletByPhone(@PathVariable String phone) {
+		WalletResponse wallet = walletService.getWalletByPhone(phone);
 		return ResponseEntity.ok(ApiResponse.success(wallet));
 	}
 

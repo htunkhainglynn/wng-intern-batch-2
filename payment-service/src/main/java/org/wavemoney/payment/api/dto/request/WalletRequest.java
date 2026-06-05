@@ -12,7 +12,7 @@ public record WalletRequest (
     double balance,
 
     @NotNull(message = "Phone number is required")
-    String phoneNumber,
+    String phone,
 
     @NotNull(message = "Currency is required")
     Currency currency,
