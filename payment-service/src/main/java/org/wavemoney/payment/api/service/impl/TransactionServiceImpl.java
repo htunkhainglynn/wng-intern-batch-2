@@ -6,6 +6,7 @@ import org.springframework.kafka.core.KafkaTemplate;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.wavemoney.payment.api.dto.request.CashInRequest;
+import org.wavemoney.payment.api.dto.request.TransactionRequest;
 import org.wavemoney.payment.api.dto.response.TransactionResponse;
 import org.wavemoney.payment.api.dto.response.WalletResponse;
 import org.wavemoney.payment.api.entity.Transaction;
@@ -61,6 +62,19 @@ public class TransactionServiceImpl implements TransactionService {
         // TODO: save transaction and return response
         return saveTransaction(request);
     }
+
+    @Override
+    public TransactionResponse adjustment(TransactionRequest request) {
+        String userPhone = request.to();
+        WalletResponse wallet = walletService.getWalletByPhone(userPhone);
+        Double newBalance = wallet.balance() + request.amount();
+        if (walletLimit < newBalance) {
+            throw BusinessLogicException.business("WALLET_LIMIT_EXCEEDED", "Wallet limit exceeded");
+        }
+        updateBalanceByPhone(userPhone, newBalance);
+        return saveAdjustmentTransaction(request);
+    }
+
 
     private void validateDifferentWallet(CashInRequest request) {
         String from = request.from();
@@ -131,6 +145,24 @@ public class TransactionServiceImpl implements TransactionService {
 
         // send event to kafka
        // kafkaTemplate.send("transaction-events", saved);
+
+        return toResponse(saved);
+    }
+
+    private TransactionResponse saveAdjustmentTransaction(TransactionRequest request){
+        Transaction transaction = Transaction.builder()
+                .from("SYSTEM")
+                .to(request.to())
+                .amount(request.amount())
+                .status(TransactionStatus.SUCCESS.name())
+                .transactionType(TransactionType.ADJUSTMENT.name())
+                .transactionTime(LocalDateTime.now())
+                .build();
+
+        Transaction saved = transactionRepository.save(transaction);
+
+        // send event to kafka
+        // kafkaTemplate.send("transaction-events", saved);
 
         return toResponse(saved);
     }

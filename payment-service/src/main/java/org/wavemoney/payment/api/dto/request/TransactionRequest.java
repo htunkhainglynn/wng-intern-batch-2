@@ -1,6 +1,12 @@
 package org.wavemoney.payment.api.dto.request;
 
-public class TransactionRequest {
-    String to;
-    double amount;
+import jakarta.validation.constraints.NotNull;
+
+public record TransactionRequest(
+        @NotNull
+        String to,
+
+        @NotNull
+        Double amount
+) {
 }
