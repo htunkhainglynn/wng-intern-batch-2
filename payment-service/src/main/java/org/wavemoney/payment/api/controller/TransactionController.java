@@ -16,4 +16,13 @@ import org.wavemoney.payment.api.service.TransactionService;
 @RequestMapping("/api/v1/transactions")
 @RequiredArgsConstructor
 public class TransactionController {
+
+    private final TransactionService transactionService;
+
+    @PostMapping("/cash-in")
+    public ResponseEntity<ApiResponse<TransactionResponse>> cashIn(@Valid @RequestBody CashInRequest cashInRequest) {
+        return ResponseEntity.ok(ApiResponse.success(transactionService.cashIn(cashInRequest)));
+    }
+
+
 }

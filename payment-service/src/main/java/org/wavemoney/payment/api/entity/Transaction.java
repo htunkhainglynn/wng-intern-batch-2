@@ -13,5 +13,8 @@ public class Transaction {
     String to;
     String amount;
     String TransactionType;
-    String TransactionStatus;
+    String Status;
+    String transactionType;
+    String transactionTime;
+
 }

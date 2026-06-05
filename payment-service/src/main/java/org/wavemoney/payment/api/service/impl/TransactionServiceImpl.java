@@ -31,6 +31,9 @@ public class TransactionServiceImpl implements TransactionService {
 
     @Override
     public TransactionResponse cashIn(CashInRequest request) {
+        //From not same as To
+        validateDifferentWallet(request);
+
         // TODO: amount limit check
         validateAmountLimit(request.amount());
 
@@ -47,6 +50,14 @@ public class TransactionServiceImpl implements TransactionService {
         // TODO: return transaction response
 
         return null;
+    }
+
+    private void validateDifferentWallet(CashInRequest request) {
+        String from = request.from();
+        String to = request.to();
+        if(from.equals(to)) {
+            throw BusinessLogicException.business("INVALID_REQUEST", "Sender and receiver wallets cannot be the same");
+        }
     }
 
     private void validateUserWalletLimit(CashInRequest request) {
@@ -72,4 +83,6 @@ public class TransactionServiceImpl implements TransactionService {
             throw BusinessLogicException.business("INVALID_AMOUNT", "Amount must be less than " + maxAmount);
         }
     }
+
+
 }
