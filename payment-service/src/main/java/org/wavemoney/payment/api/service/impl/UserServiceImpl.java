@@ -90,7 +90,6 @@ public class UserServiceImpl implements UserService {
                 .orElseThrow(() -> BusinessLogicException.notFound("USER_NOT_FOUND", "User with phone number /' " + phone + " /' not found"));
 
         user.setName(updReq.name());
-        //user.setPin(updReq.pin());
 
         User saved = userRepository.save(user);
         return toResponse(saved);

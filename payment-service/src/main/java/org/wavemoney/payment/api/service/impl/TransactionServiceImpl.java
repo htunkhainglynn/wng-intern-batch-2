@@ -34,7 +34,9 @@ public class TransactionServiceImpl implements TransactionService {
     @Override
     public TransactionResponse cashIn(CashInRequest request) {
 
+
         validateDifferentWallet(request);
+
         // TODO: amount limit check
         validateAmountLimit(request.amount());
 
@@ -137,4 +139,5 @@ public class TransactionServiceImpl implements TransactionService {
                 .status(wallet.getStatus())
                 .build();
     }
+
 }
