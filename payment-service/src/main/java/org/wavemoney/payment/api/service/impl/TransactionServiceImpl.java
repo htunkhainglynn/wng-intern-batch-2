@@ -48,7 +48,6 @@ public class TransactionServiceImpl implements TransactionService {
     private final WalletService walletService;
 
     @Override
-    @Transactional
     public TransactionResponse cashIn(CashInRequest request) {
 
         validateDifferentWallet(request);
@@ -127,7 +126,6 @@ public class TransactionServiceImpl implements TransactionService {
         WalletResponse wallet = walletService.getWalletByPhone(userPhone);
         Double newBalance = wallet.balance() + request.amount();
         updateBalanceByPhone(userPhone, newBalance);
-        throw BusinessLogicException.business("TEST_ATOMIC", "Testing atomic.");
     }
 
     private void updateBalanceByPhone(String phone, Double balance){
