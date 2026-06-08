@@ -5,6 +5,7 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.kafka.core.KafkaTemplate;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.wavemoney.payment.api.dto.event.TransactionEvent;
 import org.wavemoney.payment.api.dto.request.CashInRequest;
 import org.wavemoney.payment.api.dto.request.TransactionRequest;
 import org.wavemoney.payment.api.dto.response.TransactionResponse;
@@ -28,7 +29,7 @@ import java.util.Optional;
 public class TransactionServiceImpl implements TransactionService {
 
     private final TransactionRepository transactionRepository;
-    //private final KafkaTemplate kafkaTemplate;
+    private final KafkaTemplate<String, Object> kafkaTemplate;
 
     @Value("${transaction-amount.max}")
     private Double maxAmount;
@@ -38,6 +39,12 @@ public class TransactionServiceImpl implements TransactionService {
 
     @Value("${wallet-limit}")
     private Double walletLimit;
+
+    @Value("${app.kafka.topics.cash-in-events}")
+    private String cashInEventsTopic;
+
+    @Value("${app.kafka.topics.adjustment-events}")
+    private String adjustmentEventsTopic;
 
     private final WalletRepository walletRepository;
     private final WalletService walletService;
@@ -150,8 +157,7 @@ public class TransactionServiceImpl implements TransactionService {
 
         Transaction saved = transactionRepository.save(transaction);
 
-        // send event to kafka
-       // kafkaTemplate.send("transaction-events", saved);
+        publishTransactionEvent(saved, cashInEventsTopic);
 
         return toResponse(saved);
     }
@@ -168,10 +174,25 @@ public class TransactionServiceImpl implements TransactionService {
 
         Transaction saved = transactionRepository.save(transaction);
 
-        // send event to kafka
-        // kafkaTemplate.send("transaction-events", saved);
+        publishTransactionEvent(saved, adjustmentEventsTopic);
 
         return toResponse(saved);
+    }
+
+    private void publishTransactionEvent(Transaction transaction, String topic) {
+        TransactionEvent event = TransactionEvent.builder()
+                .transactionId(transaction.getTransactionId())
+                .from(transaction.getFrom())
+                .to(transaction.getTo())
+                .amount(transaction.getAmount())
+                .status(transaction.getStatus())
+                .transactionType(transaction.getTransactionType())
+                .transactionTime(transaction.getTransactionTime() != null
+                        ? transaction.getTransactionTime().toString()
+                        : null)
+                .build();
+
+        kafkaTemplate.send(topic, transaction.getTransactionId(), event);
     }
 
     private TransactionResponse toResponse(Transaction transaction) {
