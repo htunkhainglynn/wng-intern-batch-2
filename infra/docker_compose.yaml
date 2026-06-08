@@ -1,7 +1,7 @@
 services:
-  mongo:
+  mongo-payment:
     image: mongo:latest
-    container_name: shared-mongo
+    container_name: payment-mongo
     restart: always
     ports:
       - "27017:27017"
@@ -10,7 +10,22 @@ services:
       MONGO_INITDB_ROOT_PASSWORD: password
       MONGO_INITDB_DATABASE: payment
     volumes:
-      - mongo_data:/data/db
+      - mongo_payment_data:/data/db
+    networks:
+      - shared-network
+
+  mongo-notification:
+    image: mongo:latest
+    container_name: notification-mongo
+    restart: always
+    ports:
+      - "27018:27017"
+    environment:
+      MONGO_INITDB_ROOT_USERNAME: admin
+      MONGO_INITDB_ROOT_PASSWORD: password
+      MONGO_INITDB_DATABASE: notification
+    volumes:
+      - mongo_notification_data:/data/db
     networks:
       - shared-network
 
@@ -82,7 +97,8 @@ services:
       - shared-network
 
 volumes:
-  mongo_data:
+  mongo_payment_data:
+  mongo_notification_data:
   redis_data:
   kafka_data:
   redis_insight_data:

@@ -1,0 +1,32 @@
+spring:
+  application:
+    name: notification-service
+
+  kafka:
+    bootstrap-servers: localhost:9092
+    consumer:
+      group-id: notification-service
+      auto-offset-reset: earliest
+      key-deserializer: org.apache.kafka.common.serialization.StringDeserializer
+      value-deserializer: org.springframework.kafka.support.serializer.JsonDeserializer
+      properties:
+        spring.json.trusted.packages: "*"
+        spring.json.use.type.headers: false
+        spring.json.value.default.type: org.wavemoney.notification.api.dto.event.TransactionEvent
+
+  mongodb:
+    uri: mongodb://admin:password@localhost:27018/notification?authSource=admin
+
+server:
+  port: 8082
+
+app:
+  kafka:
+    topics:
+      transaction-events: payment.transaction.events
+
+logging:
+  level:
+    root: INFO
+    org.springframework: INFO
+    org.wavemoney.notification: DEBUG
