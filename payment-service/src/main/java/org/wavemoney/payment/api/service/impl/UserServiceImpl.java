@@ -104,7 +104,9 @@ public class UserServiceImpl implements UserService {
         if (!user.getPin().equals(oldPin)) {
             throw BusinessLogicException.business("INVALID_PIN", "Old pin does not match");
         }
-
+        if (oldPin.equals(newPin)) {
+            throw BusinessLogicException.business("SAME_PIN", "New pin must be different from old pin");
+        }
         user.setPin(newPin);
         userRepository.save(user);
     }
