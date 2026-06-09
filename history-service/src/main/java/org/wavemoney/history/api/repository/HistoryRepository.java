@@ -13,5 +13,8 @@ public interface HistoryRepository extends MongoRepository<History, String> {
 
     List<History> findHistoryByFromOrTo(String from, String to);
 
-    List<History> findHistoryByFrom(String from);
+    List<History> findHistoryByFrom(String phone);
+
+    List<History> findHistoryByTo(String phone);
+
 }

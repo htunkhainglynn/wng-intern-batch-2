@@ -10,6 +10,10 @@ public interface HistoryService {
 
     List<History> getAllHistory(HistoryRequest request);
 
+    List<History> getSentHistory(String phone);
+
+    List<History> getReceivedHistory(String phone);
+
     void handleHistoryEvent(TransactionEvent event);
 
     List<History> getByFrom(String from);

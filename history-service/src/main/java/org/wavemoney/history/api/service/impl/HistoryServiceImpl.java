@@ -30,10 +30,20 @@ public class HistoryServiceImpl implements HistoryService {
     }
 
     @Override
+    public List<History> getSentHistory(String phone) {
+        return historyRepository.findHistoryByFrom(phone);
+    }
+
+    @Override
+    public List<History> getReceivedHistory(String phone) {
+        return historyRepository.findHistoryByTo(phone);
+    }
+
+    @Override
     public void handleHistoryEvent(TransactionEvent event) {
         List<History> saved = new ArrayList<>();
         saveIfAbsent(buildSentHistory(event)).ifPresent(saved::add);
-        log.debug("Saved cash-in history for transactionId={}: {}", event.transactionId(), saved);
+        log.debug("Saved history for transactionId={}: {}", event.transactionId(), saved);
     }
 
     @Override
