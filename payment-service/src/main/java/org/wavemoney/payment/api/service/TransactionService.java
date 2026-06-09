@@ -4,7 +4,10 @@ import org.wavemoney.payment.api.dto.request.CashInRequest;
 import org.wavemoney.payment.api.dto.request.TransactionRequest;
 import org.wavemoney.payment.api.dto.response.TransactionResponse;
 
+import java.util.List;
+
 public interface TransactionService {
     TransactionResponse cashIn(CashInRequest request);
     TransactionResponse adjustment(TransactionRequest request);
+    List<TransactionResponse> getAllTransactions();
 }

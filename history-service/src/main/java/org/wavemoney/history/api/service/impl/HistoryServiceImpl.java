@@ -5,7 +5,6 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.dao.DuplicateKeyException;
 import org.springframework.stereotype.Service;
 import org.wavemoney.history.api.dto.event.TransactionEvent;
-import org.wavemoney.history.api.dto.request.HistoryRequest;
 import org.wavemoney.history.api.entity.History;
 import org.wavemoney.history.api.repository.HistoryRepository;
 import org.wavemoney.history.api.service.HistoryService;
@@ -25,8 +24,8 @@ public class HistoryServiceImpl implements HistoryService {
     private final HistoryRepository historyRepository;
 
     @Override
-    public List<History> getAllHistory(HistoryRequest historyRequest) {
-        return historyRepository.findHistoryByFromOrTo(historyRequest.sender(), historyRequest.recipient());
+    public List<History> getAllHistory(String phone) {
+        return historyRepository.findHistoryByFromOrTo(phone, phone);
     }
 
     @Override
@@ -44,11 +43,6 @@ public class HistoryServiceImpl implements HistoryService {
         List<History> saved = new ArrayList<>();
         saveIfAbsent(buildSentHistory(event)).ifPresent(saved::add);
         log.debug("Saved history for transactionId={}: {}", event.transactionId(), saved);
-    }
-
-    @Override
-    public List<History> getByFrom(String from) {
-        return historyRepository.findHistoryByFrom(from);
     }
 
     private Optional<History> saveIfAbsent(History history) {

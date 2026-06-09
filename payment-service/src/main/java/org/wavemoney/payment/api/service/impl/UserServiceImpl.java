@@ -1,6 +1,7 @@
 package org.wavemoney.payment.api.service.impl;
 
 import lombok.RequiredArgsConstructor;
+import org.springframework.kafka.core.KafkaTemplate;
 import org.springframework.stereotype.Service;
 import org.wavemoney.payment.api.dto.request.PinUpdateRequest;
 import org.wavemoney.payment.api.dto.request.UserRequest;
@@ -16,6 +17,7 @@ import org.wavemoney.payment.api.service.WalletService;
 
 import java.time.LocalDateTime;
 import java.util.List;
+import java.util.UUID;
 import java.util.stream.Collectors;
 
 @Service
@@ -24,14 +26,16 @@ public class UserServiceImpl implements UserService {
 
     private final UserRepository userRepository;
     private final WalletService walletService;
+    //private final KafkaTemplate<String, User> kafkaTemplate;
 
     @Override
     public UserResponse create(UserRequest request) {
         if (userRepository.existsByPhoneOrNrc(request.phone(), request.nrc())) {
             throw BusinessLogicException.business("ACCOUNT_TAKEN", "Account is already taken");
         }
-
+        String id = UUID.randomUUID().toString();
         User user = User.builder()
+                .id(id)
                 .name(request.name())
                 .phone(request.phone())
                 .nrc(request.nrc())
@@ -40,6 +44,8 @@ public class UserServiceImpl implements UserService {
                 .build();
 
         User saved = userRepository.save(user);
+        //kafkaTemplate.send("User-events", User.builder().phone(saved.getPhone()).build());
+
         walletService.create(WalletRequest.builder().phone(saved.getPhone()).build());
         return toResponse(saved, WalletStatus.ACTIVE.name());
     }
@@ -104,7 +110,7 @@ public class UserServiceImpl implements UserService {
         if (!user.getPin().equals(oldPin)) {
             throw BusinessLogicException.business("INVALID_PIN", "Old pin does not match");
         }
-        if(oldPin.equals(newPin)) {
+        if(!oldPin.equals(newPin)) {
             throw BusinessLogicException.business("SAME_PIN", "NEW pin must be different from OLD pin");
         }
 
