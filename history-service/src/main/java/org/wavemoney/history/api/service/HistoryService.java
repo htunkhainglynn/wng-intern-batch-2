@@ -9,5 +9,9 @@ public interface HistoryService {
 
     List<History> getAllHistory(String phone);
 
+    List<History> getSentHistory(String phone);
+
+    List<History> getReceivedHistory(String phone);
+
     void handleHistoryEvent(TransactionEvent event);
 }
