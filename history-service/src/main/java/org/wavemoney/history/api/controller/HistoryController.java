@@ -22,5 +22,17 @@ public class HistoryController {
         return ResponseEntity.ok(history);
     }
 
+    @GetMapping("/sent/{phone}")
+    public ResponseEntity<List<History>> getSentHistory(@PathVariable String phone) {
+        List<History> history = historyService.getSentHistory(phone);
+        return ResponseEntity.ok(history);
+    }
+
+    @GetMapping("/received/{phone}")
+    public ResponseEntity<List<History>> getReceivedHistory(@PathVariable String phone) {
+        List<History> history = historyService.getReceivedHistory(phone);
+        return ResponseEntity.ok(history);
+    }
+
 
 }

@@ -158,8 +158,8 @@ public class TransactionServiceImpl implements TransactionService {
 
         Transaction saved = transactionRepository.save(transaction);
 
-        publishTransactionEvent(saved, cashInEventsTopic);
         publishTransactionEvent(saved, transactionEventsTopic);
+        publishTransactionEvent(saved, cashInEventsTopic);
 
         return toResponse(saved);
     }
@@ -176,8 +176,8 @@ public class TransactionServiceImpl implements TransactionService {
 
         Transaction saved = transactionRepository.save(transaction);
 
-        publishTransactionEvent(saved, adjustmentEventsTopic);
         publishTransactionEvent(saved, transactionEventsTopic);
+        publishTransactionEvent(saved, adjustmentEventsTopic);
 
         return toResponse(saved);
     }
