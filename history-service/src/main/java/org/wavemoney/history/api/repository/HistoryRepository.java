@@ -12,4 +12,6 @@ import java.util.List;
 public interface HistoryRepository extends MongoRepository<History, String> {
 
     List<History> findHistoryByFromOrTo(String from, String to);
+
+    List<History> findHistoryByFrom(String from);
 }

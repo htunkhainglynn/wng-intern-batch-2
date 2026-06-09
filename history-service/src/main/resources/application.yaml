@@ -22,7 +22,7 @@ spring:
     uri: mongodb://admin:password@localhost:27018/history?authSource=admin
 
 server:
-  port: 8082
+  port: 8083
 
 app:
   kafka:
