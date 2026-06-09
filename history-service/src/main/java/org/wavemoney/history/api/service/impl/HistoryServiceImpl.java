@@ -25,8 +25,8 @@ public class HistoryServiceImpl implements HistoryService {
     private final HistoryRepository historyRepository;
 
     @Override
-    public List<History> getAllHistory(HistoryRequest historyRequest) {
-        return historyRepository.findHistoryByFromOrTo(historyRequest.sender(), historyRequest.recipient());
+    public List<History> getAllHistory(String phone) {
+        return historyRepository.findHistoryByFromOrTo(phone, phone);
     }
 
     @Override

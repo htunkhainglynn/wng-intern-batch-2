@@ -8,7 +8,7 @@ import java.util.List;
 
 public interface HistoryService {
 
-    List<History> getAllHistory(HistoryRequest request);
+    List<History> getAllHistory(String phone);
 
     List<History> getSentHistory(String phone);
 

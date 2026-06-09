@@ -17,9 +17,9 @@ public class HistoryController {
 
     private final HistoryService historyService;
 
-    @GetMapping()
-    public ResponseEntity <List<History>> getAllHistory(@RequestBody HistoryRequest historyRequest) {
-        List<History> history = historyService.getAllHistory(historyRequest);
+    @GetMapping("/{phone}")
+    public ResponseEntity <List<History>> getAllHistory(@PathVariable String phone) {
+        List<History> history = historyService.getAllHistory(phone);
         return ResponseEntity.ok(history);
     }
 
