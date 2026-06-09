@@ -12,14 +12,14 @@ spring:
       properties:
         spring.json.trusted.packages: "*"
         spring.json.use.type.headers: false
-        spring.json.value.default.type: org.wavemoney.notification.api.dto.event.TransactionEvent
+        spring.json.value.default.type: org.wavemoney.history.api.dto.event.TransactionEvent
 
   data:
     mongodb:
       auto-index-creation: true
 
   mongodb:
-    uri: mongodb://admin:password@localhost:27018/notification?authSource=admin
+    uri: mongodb://admin:password@localhost:27018/history?authSource=admin
 
 server:
   port: 8082

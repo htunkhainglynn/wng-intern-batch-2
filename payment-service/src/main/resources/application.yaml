@@ -35,6 +35,7 @@ app:
     topics:
       cash-in-events: payment.cashin.events
       adjustment-events: payment.adjustment.events
+      transaction-events: payment.transaction.events
 
 logging:
   level:
