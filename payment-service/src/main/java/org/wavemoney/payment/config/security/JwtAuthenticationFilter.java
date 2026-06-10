@@ -23,6 +23,7 @@ import java.util.Collections;
 public class JwtAuthenticationFilter extends OncePerRequestFilter {
 
     private final JwtService jwtService;
+    private final TokenService tokenService;
 
     @Override
     protected void doFilterInternal(@NonNull HttpServletRequest request,
@@ -35,11 +36,18 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
             try {
                 Claims claims = jwtService.parse(token);
                 String phone = claims.getSubject();
+                String tokenStatus = claims.get(JwtService.CLAIM_STATUS, String.class);
 
-                UsernamePasswordAuthenticationToken auth =
-                        new UsernamePasswordAuthenticationToken(phone, null, Collections.emptyList());
-                auth.setDetails(new WebAuthenticationDetailsSource().buildDetails(request));
-                SecurityContextHolder.getContext().setAuthentication(auth);
+                String redisStatus = tokenService.getTokenStatus(phone);
+                
+                if ("ACTIVE".equals(tokenStatus) && "ACTIVE".equals(redisStatus)) {
+                    UsernamePasswordAuthenticationToken auth =
+                            new UsernamePasswordAuthenticationToken(phone, null, Collections.emptyList());
+                    auth.setDetails(new WebAuthenticationDetailsSource().buildDetails(request));
+                    SecurityContextHolder.getContext().setAuthentication(auth);
+                } else {
+                    log.debug("Token not active - JWT status: {}, Redis status: {}", tokenStatus, redisStatus);
+                }
             } catch (JwtException | IllegalArgumentException ex) {
                 log.debug("Invalid JWT: {}", ex.getMessage());
             }

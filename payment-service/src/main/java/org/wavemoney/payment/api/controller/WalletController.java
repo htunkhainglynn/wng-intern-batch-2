@@ -27,4 +27,5 @@ public class WalletController {
 		List<WalletResponse> wallets = walletService.getAllWallets();
 		return ResponseEntity.ok(ApiResponse.success(wallets));
 	}
+
 }

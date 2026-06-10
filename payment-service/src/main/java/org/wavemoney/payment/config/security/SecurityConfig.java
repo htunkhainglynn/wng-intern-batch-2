@@ -17,10 +17,11 @@ public class SecurityConfig {
 
     private final SecurityProperties props;
     private final JwtService jwtService;
+    private final TokenService tokenService;
 
     @Bean
     public JwtAuthenticationFilter jwtAuthenticationFilter() {
-        return new JwtAuthenticationFilter(jwtService);
+        return new JwtAuthenticationFilter(jwtService, tokenService);
     }
 
     @Bean

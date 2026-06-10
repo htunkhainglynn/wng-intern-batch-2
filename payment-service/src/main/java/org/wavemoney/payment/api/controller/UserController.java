@@ -15,6 +15,7 @@ import org.wavemoney.payment.api.dto.response.UserResponse;
 import org.wavemoney.payment.api.service.UserService;
 
 import java.util.List;
+import java.util.Map;
 
 @RestController
 @RequestMapping("/api/v1/users")
@@ -62,9 +63,10 @@ public class UserController {
     }
 
     @PostMapping("/logout")
-    public ResponseEntity<ApiResponse<String>> logout(@Valid @RequestBody String phone) {
+    public ResponseEntity<ApiResponse<String>> logout(@RequestBody Map<String, String> request) {
+        String phone = request.get("phone");
         userService.logout(phone);
-        return ResponseEntity.ok(ApiResponse.success("Logged out", HttpStatus.OK.value(), "Logged out"));
+        return ResponseEntity.ok(ApiResponse.success("Logged out successfully", HttpStatus.OK.value(), "Token invalidated"));
     }
 
     @DeleteMapping("/{phone}")

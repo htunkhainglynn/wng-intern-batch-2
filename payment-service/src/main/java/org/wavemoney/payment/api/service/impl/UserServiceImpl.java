@@ -15,9 +15,11 @@ import org.wavemoney.payment.api.repository.UserRepository;
 import org.wavemoney.payment.api.service.UserService;
 import org.wavemoney.payment.api.service.WalletService;
 import org.wavemoney.payment.config.security.JwtService;
+import org.wavemoney.payment.config.security.TokenService;
 
 import java.time.LocalDateTime;
 import java.util.List;
+import java.util.UUID;
 import java.util.stream.Collectors;
 
 @Service
@@ -27,14 +29,17 @@ public class UserServiceImpl implements UserService {
     private final UserRepository userRepository;
     private final WalletService walletService;
     private final JwtService jwtService;
+    private final TokenService tokenService;
+
 
     @Override
     public UserResponse create(UserRequest request) {
         if (userRepository.existsByPhoneOrNrc(request.phone(), request.nrc())) {
             throw BusinessLogicException.business("ACCOUNT_TAKEN", "Account is already taken");
         }
-
+        String id = UUID.randomUUID().toString();
         User user = User.builder()
+                .id(id)
                 .name(request.name())
                 .phone(request.phone())
                 .nrc(request.nrc())
@@ -43,6 +48,8 @@ public class UserServiceImpl implements UserService {
                 .build();
 
         User saved = userRepository.save(user);
+        //kafkaTemplate.send("User-events", User.builder().phone(saved.getPhone()).build());
+
         walletService.create(WalletRequest.builder().phone(saved.getPhone()).build());
         return toResponse(saved, WalletStatus.ACTIVE.name());
     }
@@ -76,7 +83,10 @@ public class UserServiceImpl implements UserService {
         userRepository.save(user);
         String walletStatus = walletService.getWalletStatusByPhone(phone);
         UserResponse userResponse = toResponse(user, walletStatus);
-        String token = jwtService.issue(user.getPhone());
+        
+        String token = jwtService.issue(user.getPhone(), "ACTIVE");
+        tokenService.markTokenAsActive(user.getPhone(), jwtService.expirationMs());
+        
         return LoginResponse.builder()
                 .user(userResponse)
                 .accessToken(token)
@@ -86,12 +96,11 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
-    public void logout(String id) {
-        // stateless/logout stub - update lastLogin to null or leave as-is. We'll update nothing for now.
-        // Could be extended to manage tokens in Redis.
-        if (!userRepository.existsById(id)) {
-            throw BusinessLogicException.notFound("USER_NOT_FOUND", "User " + id + " not found");
-        }
+    public void logout(String phone) {
+        User user = userRepository.findByPhone(phone)
+                .orElseThrow(() -> BusinessLogicException.notFound("USER_NOT_FOUND", "User " + phone + " not found"));
+        
+        tokenService.markTokenAsLoggedOut(user.getPhone());
     }
 
     @Override
@@ -114,9 +123,10 @@ public class UserServiceImpl implements UserService {
         if (!user.getPin().equals(oldPin)) {
             throw BusinessLogicException.business("INVALID_PIN", "Old pin does not match");
         }
-        if (oldPin.equals(newPin)) {
-            throw BusinessLogicException.business("SAME_PIN", "New pin must be different from old pin");
+        if(!oldPin.equals(newPin)) {
+            throw BusinessLogicException.business("SAME_PIN", "NEW pin must be different from OLD pin");
         }
+
         user.setPin(newPin);
         userRepository.save(user);
     }
