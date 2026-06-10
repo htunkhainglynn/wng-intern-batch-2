@@ -35,6 +35,13 @@ app:
     topics:
       cash-in-events: payment.cashin.events
       adjustment-events: payment.adjustment.events
+  security:
+    jwt:
+      secret: ${JWT_SECRET:abcdefghijklmnopqrstuvwxyzabcdefghijklmnopqrstuvwxyz}
+      expiration-ms: 3600000
+    public-paths:
+      - /api/v1/users/login
+      - /api/v1/users
 
 logging:
   level:

@@ -6,6 +6,7 @@ import org.wavemoney.payment.api.dto.request.PinUpdateRequest;
 import org.wavemoney.payment.api.dto.request.UserRequest;
 import org.wavemoney.payment.api.dto.request.UserUpdateRequest;
 import org.wavemoney.payment.api.dto.request.WalletRequest;
+import org.wavemoney.payment.api.dto.response.LoginResponse;
 import org.wavemoney.payment.api.dto.response.UserResponse;
 import org.wavemoney.payment.api.entity.User;
 import org.wavemoney.payment.api.enums.WalletStatus;
@@ -13,6 +14,7 @@ import org.wavemoney.payment.api.exception.BusinessLogicException;
 import org.wavemoney.payment.api.repository.UserRepository;
 import org.wavemoney.payment.api.service.UserService;
 import org.wavemoney.payment.api.service.WalletService;
+import org.wavemoney.payment.config.security.JwtService;
 
 import java.time.LocalDateTime;
 import java.util.List;
@@ -24,6 +26,7 @@ public class UserServiceImpl implements UserService {
 
     private final UserRepository userRepository;
     private final WalletService walletService;
+    private final JwtService jwtService;
 
     @Override
     public UserResponse create(UserRequest request) {
@@ -61,7 +64,7 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
-    public UserResponse login(String phone, String pin) {
+    public LoginResponse login(String phone, String pin) {
         User user = userRepository.findByPhone(phone)
                 .orElseThrow(() -> BusinessLogicException.auth("INVALID_CREDENTIALS", "Invalid credentials"));
 
@@ -72,7 +75,14 @@ public class UserServiceImpl implements UserService {
         user.setLastLogin(LocalDateTime.now());
         userRepository.save(user);
         String walletStatus = walletService.getWalletStatusByPhone(phone);
-        return toResponse(user, walletStatus);
+        UserResponse userResponse = toResponse(user, walletStatus);
+        String token = jwtService.issue(user.getPhone());
+        return LoginResponse.builder()
+                .user(userResponse)
+                .accessToken(token)
+                .tokenType("Bearer")
+                .expiresInMs(jwtService.expirationMs())
+                .build();
     }
 
     @Override
@@ -124,14 +134,16 @@ public class UserServiceImpl implements UserService {
     private UserResponse toResponse(User user) {
         return UserResponse.builder().name(user.getName())
                 .phone(user.getPhone())
-                .level(user.getLevel()).build();
+                .level(user.getLevel())
+                .build();
     }
 
     private UserResponse toResponse(User user, String walletStatus) {
         return UserResponse.builder().name(user.getName())
                 .phone(user.getPhone())
                 .walletStatus(walletStatus)
-                .level(user.getLevel()).build();
+                .level(user.getLevel())
+                .build();
     }
 
     private List<UserResponse> toResponse(List<User> users) {

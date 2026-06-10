@@ -4,6 +4,7 @@ import jakarta.validation.Valid;
 import org.wavemoney.payment.api.dto.request.PinUpdateRequest;
 import org.wavemoney.payment.api.dto.request.UserRequest;
 import org.wavemoney.payment.api.dto.request.UserUpdateRequest;
+import org.wavemoney.payment.api.dto.response.LoginResponse;
 import org.wavemoney.payment.api.dto.response.UserResponse;
 
 import java.util.List;
@@ -13,7 +14,7 @@ public interface UserService {
     UserResponse create(UserRequest request);
     UserResponse getByPhone (String phone);
 
-    UserResponse login(String phone, String pin);
+    LoginResponse login(String phone, String pin);
 
     void logout(String id);
 

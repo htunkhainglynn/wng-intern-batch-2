@@ -10,6 +10,7 @@ import org.wavemoney.payment.api.dto.request.PinUpdateRequest;
 import org.wavemoney.payment.api.dto.request.UserRequest;
 import org.wavemoney.payment.api.dto.request.UserUpdateRequest;
 import org.wavemoney.payment.api.dto.response.ApiResponse;
+import org.wavemoney.payment.api.dto.response.LoginResponse;
 import org.wavemoney.payment.api.dto.response.UserResponse;
 import org.wavemoney.payment.api.service.UserService;
 
@@ -55,9 +56,9 @@ public class UserController {
     }
 
     @PostMapping("/login")
-    public ResponseEntity<ApiResponse<UserResponse>> login(@RequestBody LoginRequest request) {
-        UserResponse user = userService.login(request.phone(), request.pin());
-        return ResponseEntity.ok(ApiResponse.success(user, HttpStatus.OK.value(), "Login successful"));
+    public ResponseEntity<ApiResponse<LoginResponse>> login(@RequestBody LoginRequest request) {
+        LoginResponse loginResponse = userService.login(request.phone(), request.pin());
+        return ResponseEntity.ok(ApiResponse.success(loginResponse, HttpStatus.OK.value(), "Login successful"));
     }
 
     @PostMapping("/logout")
