@@ -15,20 +15,20 @@ public class KafkaConsumer {
     private final NotificationService notificationService;
 
     @KafkaListener(
-            topics = "${app.kafka.topics.cash-in-events}",
+            topics = "${app.kafka.topics.transfer-events}",
             groupId = "${spring.kafka.consumer.group-id}"
     )
-    public void onCashInEvent(TransactionEvent event) {
-        log.info("Received cash-in event: {}", event);
-        notificationService.handleCashInEvent(event);
+    public void onTransferEvent(TransactionEvent event) {
+        log.info("Received transfer event: {}", event);
+        notificationService.handleTransferEvent(event);
     }
 
     @KafkaListener(
-            topics = "${app.kafka.topics.adjustment-events}",
+            topics = "${app.kafka.topics.cashin-events}",
             groupId = "${spring.kafka.consumer.group-id}"
     )
-    public void onAdjustmentEvent(TransactionEvent event) {
-        log.info("Received adjustment event: {}", event);
-        notificationService.handleAdjustmentEvent(event);
+    public void onCashinEvent(TransactionEvent event) {
+        log.info("Received cashin event: {}", event);
+        notificationService.handleCashinEvent(event);
     }
 }

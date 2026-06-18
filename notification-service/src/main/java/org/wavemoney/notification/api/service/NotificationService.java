@@ -8,7 +8,7 @@ import java.util.Optional;
 
 public interface NotificationService {
 
-    List<Notification> handleCashInEvent(TransactionEvent event);
+    List<Notification> handleTransferEvent(TransactionEvent event);
 
-    Optional<Notification> handleAdjustmentEvent(TransactionEvent event);
+    Optional<Notification> handleCashinEvent(TransactionEvent event);
 }

@@ -4,11 +4,10 @@ import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
-import org.wavemoney.payment.api.dto.request.CashInRequest;
-import org.wavemoney.payment.api.dto.request.TransactionRequest;
+import org.wavemoney.payment.api.dto.request.TransferRequest;
+import org.wavemoney.payment.api.dto.request.CashinRequest;
 import org.wavemoney.payment.api.dto.response.ApiResponse;
 import org.wavemoney.payment.api.dto.response.TransactionResponse;
-import org.wavemoney.payment.api.dto.response.WalletResponse;
 import org.wavemoney.payment.api.service.TransactionService;
 import org.wavemoney.payment.api.service.UserService;
 import org.wavemoney.payment.api.dto.request.LoginRequest;
@@ -23,14 +22,14 @@ public class TransactionController {
     private final TransactionService transactionService;
     private final UserService userService;
 
-    @PostMapping("/cash-in")
-    public ResponseEntity<ApiResponse<TransactionResponse>> cashIn(@Valid @RequestBody CashInRequest cashInRequest) {
-        return ResponseEntity.ok(ApiResponse.success(transactionService.cashIn(cashInRequest)));
+    @PostMapping("/transfer")
+    public ResponseEntity<ApiResponse<TransactionResponse>> transfer(@Valid @RequestBody TransferRequest transferRequest) {
+        return ResponseEntity.ok(ApiResponse.success(transactionService.transfer(transferRequest)));
     }
 
-    @PostMapping("/adjustment")
-    public ResponseEntity<ApiResponse<TransactionResponse>> adjustment(@Valid @RequestBody TransactionRequest transactionRequest) {
-        return ResponseEntity.ok(ApiResponse.success(transactionService.adjustment(transactionRequest)));
+    @PostMapping("/cashin")
+    public ResponseEntity<ApiResponse<TransactionResponse>> cashin(@Valid @RequestBody CashinRequest cashinRequest) {
+        return ResponseEntity.ok(ApiResponse.success(transactionService.cashin(cashinRequest)));
     }
 
     @PostMapping("/verify-pin")

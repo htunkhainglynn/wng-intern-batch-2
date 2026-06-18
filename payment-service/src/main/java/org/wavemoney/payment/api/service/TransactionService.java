@@ -1,14 +1,14 @@
 package org.wavemoney.payment.api.service;
 
-import org.wavemoney.payment.api.dto.request.CashInRequest;
-import org.wavemoney.payment.api.dto.request.TransactionRequest;
+import org.wavemoney.payment.api.dto.request.TransferRequest;
+import org.wavemoney.payment.api.dto.request.CashinRequest;
 import org.wavemoney.payment.api.dto.response.TransactionResponse;
 
 import java.util.List;
 
 public interface TransactionService {
-    TransactionResponse cashIn(CashInRequest request);
-    TransactionResponse adjustment(TransactionRequest request);
+    TransactionResponse transfer(TransferRequest request);
+    TransactionResponse cashin(CashinRequest request);
     List<TransactionResponse> getAllTransactions();
 
 }

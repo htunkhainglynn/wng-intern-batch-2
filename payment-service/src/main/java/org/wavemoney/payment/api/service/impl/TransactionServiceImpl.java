@@ -4,10 +4,9 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.kafka.core.KafkaTemplate;
 import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
 import org.wavemoney.payment.api.dto.event.TransactionEvent;
-import org.wavemoney.payment.api.dto.request.CashInRequest;
-import org.wavemoney.payment.api.dto.request.TransactionRequest;
+import org.wavemoney.payment.api.dto.request.TransferRequest;
+import org.wavemoney.payment.api.dto.request.CashinRequest;
 import org.wavemoney.payment.api.dto.response.TransactionResponse;
 import org.wavemoney.payment.api.dto.response.WalletResponse;
 import org.wavemoney.payment.api.entity.Transaction;
@@ -22,7 +21,6 @@ import org.wavemoney.payment.api.service.WalletService;
 
 import java.time.LocalDateTime;
 import java.util.List;
-import java.util.Optional;
 
 @Service
 @RequiredArgsConstructor
@@ -40,11 +38,11 @@ public class TransactionServiceImpl implements TransactionService {
     @Value("${wallet-limit}")
     private Double walletLimit;
 
-    @Value("${app.kafka.topics.cash-in-events}")
-    private String cashInEventsTopic;
+    @Value("${app.kafka.topics.transfer-events}")
+    private String transferEventsTopic;
 
-    @Value("${app.kafka.topics.adjustment-events}")
-    private String adjustmentEventsTopic;
+    @Value("${app.kafka.topics.cashin-events}")
+    private String cashinEventsTopic;
 
     @Value("${app.kafka.topics.transaction-events}")
     private String transactionEventsTopic;
@@ -53,7 +51,7 @@ public class TransactionServiceImpl implements TransactionService {
     private final WalletService walletService;
 
     @Override
-    public TransactionResponse cashIn(CashInRequest request) {
+    public TransactionResponse transfer(TransferRequest request) {
 
         validateDifferentWallet(request);
 
@@ -66,9 +64,6 @@ public class TransactionServiceImpl implements TransactionService {
         // TODO: user wallet limit
         validateUserWalletLimit(request);
 
-        // TODO: verify pin
-
-
         // TODO: subtract balance from sender wallet
         subtractSenderBalance(request);
         // TODO: add balance to receiver wallet
@@ -78,7 +73,7 @@ public class TransactionServiceImpl implements TransactionService {
     }
 
     @Override
-    public TransactionResponse adjustment(TransactionRequest request) {
+    public TransactionResponse cashin(CashinRequest request) {
         String userPhone = request.to();
         WalletResponse wallet = walletService.getWalletByPhone(userPhone);
         Double newBalance = wallet.balance() + request.amount();
@@ -86,7 +81,7 @@ public class TransactionServiceImpl implements TransactionService {
             throw BusinessLogicException.business("WALLET_LIMIT_EXCEEDED", "Wallet limit exceeded");
         }
         updateBalanceByPhone(userPhone, newBalance);
-        return saveAdjustmentTransaction(request);
+        return saveCashinTransaction(request);
     }
 
     @Override
@@ -95,7 +90,7 @@ public class TransactionServiceImpl implements TransactionService {
         return toResponse(transactions);
     }
 
-    private void validateDifferentWallet(CashInRequest request) {
+    private void validateDifferentWallet(TransferRequest request) {
         String from = request.from();
         String to = request.to();
         if(from.equals(to)) {
@@ -103,7 +98,7 @@ public class TransactionServiceImpl implements TransactionService {
         }
     }
 
-    private void validateUserWalletLimit(CashInRequest request) {
+    private void validateUserWalletLimit(TransferRequest request) {
         String userPhone = request.from();
         WalletResponse wallet = walletService.getWalletByPhone(userPhone);
         if (walletLimit < wallet.balance() + request.amount()) {
@@ -111,7 +106,7 @@ public class TransactionServiceImpl implements TransactionService {
         }
     }
 
-    private void validateInsufficientBalance(CashInRequest request) {
+    private void validateInsufficientBalance(TransferRequest request) {
         String userPhone = request.from();
         WalletResponse wallet = walletService.getWalletByPhone(userPhone);
         if (wallet.balance() < request.amount()) {
@@ -127,14 +122,14 @@ public class TransactionServiceImpl implements TransactionService {
         }
     }
 
-    private void subtractSenderBalance(CashInRequest request){
+    private void subtractSenderBalance(TransferRequest request){
         String userPhone = request.from();
         WalletResponse wallet = walletService.getWalletByPhone(userPhone);
         Double newBalance = wallet.balance() - request.amount();
         updateBalanceByPhone(userPhone, newBalance);
     }
 
-    private void addBalanceToReceiverWallet(CashInRequest request){
+    private void addBalanceToReceiverWallet(TransferRequest request){
         String userPhone = request.to();
         WalletResponse wallet = walletService.getWalletByPhone(userPhone);
         Double newBalance = wallet.balance() + request.amount();
@@ -149,38 +144,38 @@ public class TransactionServiceImpl implements TransactionService {
         walletRepository.save(wallet);
     }
 
-    private TransactionResponse saveTransaction(CashInRequest request){
+    private TransactionResponse saveTransaction(TransferRequest request){
         Transaction transaction = Transaction.builder()
                 .from(request.from())
                 .to(request.to())
                 .amount(request.amount())
                 .status(TransactionStatus.SUCCESS.name())
-                .transactionType(TransactionType.CASH_IN.name())
+                .transactionType(TransactionType.TRANSFER.name())
                 .transactionTime(LocalDateTime.now())
                 .build();
 
         Transaction saved = transactionRepository.save(transaction);
 
         publishTransactionEvent(saved, transactionEventsTopic);
-        publishTransactionEvent(saved, cashInEventsTopic);
+        publishTransactionEvent(saved, transferEventsTopic);
 
         return toResponse(saved);
     }
 
-    private TransactionResponse saveAdjustmentTransaction(TransactionRequest request){
+    private TransactionResponse saveCashinTransaction(CashinRequest request){
         Transaction transaction = Transaction.builder()
                 .from("SYSTEM")
                 .to(request.to())
                 .amount(request.amount())
                 .status(TransactionStatus.SUCCESS.name())
-                .transactionType(TransactionType.ADJUSTMENT.name())
+                .transactionType(TransactionType.CASHIN.name())
                 .transactionTime(LocalDateTime.now())
                 .build();
 
         Transaction saved = transactionRepository.save(transaction);
 
         publishTransactionEvent(saved, transactionEventsTopic);
-        publishTransactionEvent(saved, adjustmentEventsTopic);
+        publishTransactionEvent(saved, cashinEventsTopic);
 
         return toResponse(saved);
     }

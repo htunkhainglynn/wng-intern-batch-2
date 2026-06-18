@@ -2,10 +2,7 @@ package org.wavemoney.payment.api.dto.request;
 
 import jakarta.validation.constraints.NotNull;
 
-public record CashInRequest(
-        @NotNull
-        String from,
-
+public record CashinRequest(
         @NotNull
         String to,
 

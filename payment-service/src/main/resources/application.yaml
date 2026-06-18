@@ -33,8 +33,8 @@ wallet-limit: 10000000
 app:
   kafka:
     topics:
-      cash-in-events: payment.cashin.events
-      adjustment-events: payment.adjustment.events
+      transfer-events: payment.transfer.events
+      cashin-events: payment.cashin.events
       transaction-events: payment.transaction.events
 
   security:

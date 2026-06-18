@@ -24,18 +24,18 @@ public class NotificationServiceImpl implements NotificationService {
     private final NotificationRepository notificationRepository;
 
     @Override
-    public List<Notification> handleCashInEvent(TransactionEvent event) {
+    public List<Notification> handleTransferEvent(TransactionEvent event) {
         List<Notification> saved = new ArrayList<>();
         saveIfAbsent(buildSenderNotification(event)).ifPresent(saved::add);
         saveIfAbsent(buildReceiverNotification(event)).ifPresent(saved::add);
-        log.debug("Saved cash-in notifications for transactionId={}: {}", event.transactionId(), saved);
+        log.debug("Saved transfer notifications for transactionId={}: {}", event.transactionId(), saved);
         return saved;
     }
 
     @Override
-    public Optional<Notification> handleAdjustmentEvent(TransactionEvent event) {
-        Optional<Notification> saved = saveIfAbsent(buildAdjustmentNotification(event));
-        log.debug("Saved adjustment notification for transactionId={}: {}", event.transactionId(), saved);
+    public Optional<Notification> handleCashinEvent(TransactionEvent event) {
+        Optional<Notification> saved = saveIfAbsent(buildCashinNotification(event));
+        log.debug("Saved cashin notification for transactionId={}: {}", event.transactionId(), saved);
         return saved;
     }
 
@@ -60,7 +60,7 @@ public class NotificationServiceImpl implements NotificationService {
         return Notification.builder()
                 .transactionId(event.transactionId())
                 .recipient(event.from())
-                .type("CASH_IN_SENT")
+                .type("SEND_MONEY_SENT")
                 .message(String.format("You sent %s to %s. Transaction %s.",
                         event.amount(), event.to(), event.transactionId()))
                 .status(event.status())
@@ -72,7 +72,7 @@ public class NotificationServiceImpl implements NotificationService {
         return Notification.builder()
                 .transactionId(event.transactionId())
                 .recipient(event.to())
-                .type("CASH_IN_RECEIVED")
+                .type("SEND_MONEY_RECEIVED")
                 .message(String.format("You received %s from %s. Transaction %s.",
                         event.amount(), event.from(), event.transactionId()))
                 .status(event.status())
@@ -80,12 +80,12 @@ public class NotificationServiceImpl implements NotificationService {
                 .build();
     }
 
-    private Notification buildAdjustmentNotification(TransactionEvent event) {
+    private Notification buildCashinNotification(TransactionEvent event) {
         return Notification.builder()
                 .transactionId(event.transactionId())
                 .recipient(event.to())
-                .type("ADJUSTMENT")
-                .message(String.format("Adjustment of %s applied to your wallet. Transaction %s.",
+                .type("CASHIN")
+                .message(String.format("Successful Cashin of %s to your wallet. Transaction %s.",
                         event.amount(), event.transactionId()))
                 .status(event.status())
                 .createdAt(Instant.now())
