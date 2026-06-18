@@ -17,5 +17,6 @@ public record UserRequest(
         @Pattern(regexp = "^(?!.*([0-9])\\1{3}).*$", message = "pin must be 4 digits")
         @NotBlank(message = "pin is required")
         String pin
+
 ) {
 }

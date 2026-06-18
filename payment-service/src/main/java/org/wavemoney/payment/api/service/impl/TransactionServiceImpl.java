@@ -66,6 +66,9 @@ public class TransactionServiceImpl implements TransactionService {
         // TODO: user wallet limit
         validateUserWalletLimit(request);
 
+        // TODO: verify pin
+
+
         // TODO: subtract balance from sender wallet
         subtractSenderBalance(request);
         // TODO: add balance to receiver wallet

@@ -10,6 +10,8 @@ import org.wavemoney.payment.api.dto.response.ApiResponse;
 import org.wavemoney.payment.api.dto.response.TransactionResponse;
 import org.wavemoney.payment.api.dto.response.WalletResponse;
 import org.wavemoney.payment.api.service.TransactionService;
+import org.wavemoney.payment.api.service.UserService;
+import org.wavemoney.payment.api.dto.request.LoginRequest;
 
 import java.util.List;
 
@@ -19,6 +21,7 @@ import java.util.List;
 public class TransactionController {
 
     private final TransactionService transactionService;
+    private final UserService userService;
 
     @PostMapping("/cash-in")
     public ResponseEntity<ApiResponse<TransactionResponse>> cashIn(@Valid @RequestBody CashInRequest cashInRequest) {
@@ -28,6 +31,12 @@ public class TransactionController {
     @PostMapping("/adjustment")
     public ResponseEntity<ApiResponse<TransactionResponse>> adjustment(@Valid @RequestBody TransactionRequest transactionRequest) {
         return ResponseEntity.ok(ApiResponse.success(transactionService.adjustment(transactionRequest)));
+    }
+
+    @PostMapping("/verify-pin")
+    public ResponseEntity<ApiResponse<String>> verifyPin(@RequestBody LoginRequest request) {
+        userService.verifyPin(request.phone(), request.pin());
+        return ResponseEntity.ok(ApiResponse.success("Pin verified"));
     }
 
     //history

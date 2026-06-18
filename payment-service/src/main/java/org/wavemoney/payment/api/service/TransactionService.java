@@ -10,4 +10,5 @@ public interface TransactionService {
     TransactionResponse cashIn(CashInRequest request);
     TransactionResponse adjustment(TransactionRequest request);
     List<TransactionResponse> getAllTransactions();
+
 }

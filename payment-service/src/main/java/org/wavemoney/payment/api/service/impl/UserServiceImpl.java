@@ -132,6 +132,18 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
+    public boolean verifyPin(String phone, String pin) {
+        User user = userRepository.findByPhone(phone)
+                .orElseThrow(() -> BusinessLogicException.auth("INVALID_CREDENTIALS", "Invalid credentials"));
+
+        if (!user.getPin().equals(pin)) {
+            throw BusinessLogicException.auth("INVALID_CREDENTIALS", "Invalid credentials");
+        }
+
+        return true;
+    }
+
+    @Override
     public void delete(String phone) {
         if (!userRepository.existsByPhone(phone)) {
             throw BusinessLogicException.business("USER_NOT_FOUND", "User with phone " + phone + " not found");

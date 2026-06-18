@@ -18,6 +18,9 @@ public interface UserService {
 
     void logout(String id);
 
+    // verify a user's pin without issuing tokens — used by transaction flow
+    boolean verifyPin(String phone, String pin);
+
     UserResponse update(String phone, UserUpdateRequest updReq);
 
     void delete(String id);

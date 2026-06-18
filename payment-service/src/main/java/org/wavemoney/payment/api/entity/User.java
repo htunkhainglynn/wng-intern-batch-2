@@ -21,6 +21,7 @@ public class User {
     private String name;
     private String phone;
     private String nrc;
+
     private String pin;
     private LocalDateTime createdAt;
     private LocalDateTime updatedAt;
