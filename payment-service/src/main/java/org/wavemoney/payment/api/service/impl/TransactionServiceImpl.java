@@ -5,6 +5,7 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.kafka.core.KafkaTemplate;
 import org.springframework.stereotype.Service;
 import org.wavemoney.payment.api.dto.event.TransactionEvent;
+import org.wavemoney.payment.api.dto.request.CashoutRequest;
 import org.wavemoney.payment.api.dto.request.TransferRequest;
 import org.wavemoney.payment.api.dto.request.CashinRequest;
 import org.wavemoney.payment.api.dto.response.TransactionResponse;
@@ -90,6 +91,18 @@ public class TransactionServiceImpl implements TransactionService {
         return toResponse(transactions);
     }
 
+    @Override
+    public TransactionResponse cashout(CashoutRequest cashoutRequest) {
+        String userPhone = cashoutRequest.from();
+        WalletResponse wallet = walletService.getWalletByPhone(userPhone);
+        Double newBalance = wallet.balance() - cashoutRequest.amount();
+        if (wallet.balance() < cashoutRequest.amount()) {
+            throw BusinessLogicException.business("INSUFFICIENT_BALANCE", "Insufficient balance");
+        }
+        updateBalanceByPhone(userPhone, newBalance);
+        return saveCashoutTransaction(cashoutRequest);
+    }
+
     private void validateDifferentWallet(TransferRequest request) {
         String from = request.from();
         String to = request.to();
@@ -169,6 +182,24 @@ public class TransactionServiceImpl implements TransactionService {
                 .amount(request.amount())
                 .status(TransactionStatus.SUCCESS.name())
                 .transactionType(TransactionType.CASHIN.name())
+                .transactionTime(LocalDateTime.now())
+                .build();
+
+        Transaction saved = transactionRepository.save(transaction);
+
+        publishTransactionEvent(saved, transactionEventsTopic);
+        publishTransactionEvent(saved, cashinEventsTopic);
+
+        return toResponse(saved);
+    }
+
+    private TransactionResponse saveCashoutTransaction(CashoutRequest request){
+        Transaction transaction = Transaction.builder()
+                .from(request.from())
+                .to("SYSTEM")
+                .amount(request.amount())
+                .status(TransactionStatus.SUCCESS.name())
+                .transactionType(TransactionType.CASHOUT.name())
                 .transactionTime(LocalDateTime.now())
                 .build();
 
