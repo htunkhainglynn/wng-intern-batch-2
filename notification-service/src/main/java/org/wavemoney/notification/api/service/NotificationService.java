@@ -11,4 +11,9 @@ public interface NotificationService {
     List<Notification> handleTransferEvent(TransactionEvent event);
 
     Optional<Notification> handleCashinEvent(TransactionEvent event);
+
+    // Return notifications for a given recipient phone number
+    List<Notification> getNotifications(String phone);
+
+
 }

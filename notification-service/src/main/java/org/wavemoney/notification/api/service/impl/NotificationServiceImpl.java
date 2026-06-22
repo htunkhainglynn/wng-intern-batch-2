@@ -39,6 +39,11 @@ public class NotificationServiceImpl implements NotificationService {
         return saved;
     }
 
+    @Override
+    public List<Notification> getNotifications(String phone) {
+        return notificationRepository.findByRecipient(phone);
+    }
+
     private Optional<Notification> saveIfAbsent(Notification notification) {
         if (notification.getRecipient() == null || notification.getRecipient().isBlank()
                 || SYSTEM_SENDER.equalsIgnoreCase(notification.getRecipient())) {
