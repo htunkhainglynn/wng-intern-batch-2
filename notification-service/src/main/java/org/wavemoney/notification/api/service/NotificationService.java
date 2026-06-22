@@ -16,4 +16,5 @@ public interface NotificationService {
     List<Notification> getNotifications(String phone);
 
 
+    Optional<Notification> handleCashoutEvent(TransactionEvent event);
 }

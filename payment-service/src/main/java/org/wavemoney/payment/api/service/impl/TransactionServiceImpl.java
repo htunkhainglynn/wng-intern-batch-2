@@ -45,6 +45,9 @@ public class TransactionServiceImpl implements TransactionService {
     @Value("${app.kafka.topics.cashin-events}")
     private String cashinEventsTopic;
 
+    @Value("${app.kafka.topics.cashout-events}")
+    private String cashoutEventsTopic;
+
     @Value("${app.kafka.topics.transaction-events}")
     private String transactionEventsTopic;
 
@@ -206,7 +209,7 @@ public class TransactionServiceImpl implements TransactionService {
         Transaction saved = transactionRepository.save(transaction);
 
         publishTransactionEvent(saved, transactionEventsTopic);
-        publishTransactionEvent(saved, cashinEventsTopic);
+        publishTransactionEvent(saved, cashoutEventsTopic);
 
         return toResponse(saved);
     }

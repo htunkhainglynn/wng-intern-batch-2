@@ -35,6 +35,7 @@ app:
     topics:
       transfer-events: payment.transfer.events
       cashin-events: payment.cashin.events
+      cashout-events: payment.cashout.events
       transaction-events: payment.transaction.events
 
   security:

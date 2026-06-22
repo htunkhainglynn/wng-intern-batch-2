@@ -31,4 +31,14 @@ public class KafkaConsumer {
         log.info("Received cashin event: {}", event);
         notificationService.handleCashinEvent(event);
     }
+
+    @KafkaListener(
+            topics = "${app.kafka.topics.cashout-events}",
+            groupId = "${spring.kafka.consumer.group-id}"
+    )
+    public void onCashoutEvent(TransactionEvent event) {
+        log.info("Received cashout event: {}", event);
+        notificationService.handleCashoutEvent(event);
+    }
+
 }

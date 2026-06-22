@@ -39,6 +39,12 @@ public class NotificationServiceImpl implements NotificationService {
         return saved;
     }
 
+    public Optional<Notification> handleCashoutEvent(TransactionEvent event) {
+        Optional<Notification> saved = saveIfAbsent(buildCashoutNotification(event));
+        log.debug("Saved cashout notification for transactionId={}: {}", event.transactionId(), saved);
+        return saved;
+    }
+
     @Override
     public List<Notification> getNotifications(String phone) {
         return notificationRepository.findByRecipient(phone);
@@ -65,7 +71,7 @@ public class NotificationServiceImpl implements NotificationService {
         return Notification.builder()
                 .transactionId(event.transactionId())
                 .recipient(event.from())
-                .type("SEND_MONEY_SENT")
+                .type("SENT_MONEY")
                 .message(String.format("You sent %s to %s. Transaction %s.",
                         event.amount(), event.to(), event.transactionId()))
                 .status(event.status())
@@ -77,7 +83,7 @@ public class NotificationServiceImpl implements NotificationService {
         return Notification.builder()
                 .transactionId(event.transactionId())
                 .recipient(event.to())
-                .type("SEND_MONEY_RECEIVED")
+                .type("RECEIVED_MONEY")
                 .message(String.format("You received %s from %s. Transaction %s.",
                         event.amount(), event.from(), event.transactionId()))
                 .status(event.status())
@@ -91,6 +97,18 @@ public class NotificationServiceImpl implements NotificationService {
                 .recipient(event.to())
                 .type("CASHIN")
                 .message(String.format("Successful Cashin of %s to your wallet. Transaction %s.",
+                        event.amount(), event.transactionId()))
+                .status(event.status())
+                .createdAt(Instant.now())
+                .build();
+    }
+
+    private Notification buildCashoutNotification(TransactionEvent event) {
+        return Notification.builder()
+                .transactionId(event.transactionId())
+                .recipient(event.from())
+                .type("CASHOUT")
+                .message(String.format("Successful Cashout of %s from your wallet. Transaction %s.",
                         event.amount(), event.transactionId()))
                 .status(event.status())
                 .createdAt(Instant.now())
