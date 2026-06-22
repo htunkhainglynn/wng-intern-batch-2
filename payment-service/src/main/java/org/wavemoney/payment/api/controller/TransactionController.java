@@ -4,6 +4,7 @@ import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+import org.wavemoney.payment.api.dto.request.CashoutRequest;
 import org.wavemoney.payment.api.dto.request.TransferRequest;
 import org.wavemoney.payment.api.dto.request.CashinRequest;
 import org.wavemoney.payment.api.dto.response.ApiResponse;
@@ -30,6 +31,11 @@ public class TransactionController {
     @PostMapping("/cashin")
     public ResponseEntity<ApiResponse<TransactionResponse>> cashin(@Valid @RequestBody CashinRequest cashinRequest) {
         return ResponseEntity.ok(ApiResponse.success(transactionService.cashin(cashinRequest)));
+    }
+
+    @PostMapping("/cashout")
+    public ResponseEntity<ApiResponse<TransactionResponse>> cashout(@Valid @RequestBody CashoutRequest cashoutRequest) {
+        return ResponseEntity.ok(ApiResponse.success(transactionService.cashout(cashoutRequest)));
     }
 
     @PostMapping("/verify-pin")
