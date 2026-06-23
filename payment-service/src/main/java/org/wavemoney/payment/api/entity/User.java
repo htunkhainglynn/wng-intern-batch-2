@@ -21,8 +21,13 @@ public class User {
     private String name;
     private String phone;
     private String nrc;
-
     private String pin;
+    private String address;
+    private String dateOfBirth;
+    private String gender;
+    private String nationality;
+    private String occupation;
+    private Boolean is_admin = false;
     private LocalDateTime createdAt;
     private LocalDateTime updatedAt;
     private LocalDateTime lastLogin;

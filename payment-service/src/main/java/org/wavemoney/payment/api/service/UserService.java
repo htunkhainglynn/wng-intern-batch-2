@@ -1,6 +1,7 @@
 package org.wavemoney.payment.api.service;
 
 import jakarta.validation.Valid;
+import org.wavemoney.payment.api.dto.request.KYCFormRequest;
 import org.wavemoney.payment.api.dto.request.PinUpdateRequest;
 import org.wavemoney.payment.api.dto.request.UserRequest;
 import org.wavemoney.payment.api.dto.request.UserUpdateRequest;
@@ -11,7 +12,7 @@ import java.util.List;
 
 public interface UserService {
 
-    UserResponse create(UserRequest request);
+    UserResponse create(KYCFormRequest request);
     UserResponse getByPhone (String phone);
 
     LoginResponse login(String phone, String pin);
