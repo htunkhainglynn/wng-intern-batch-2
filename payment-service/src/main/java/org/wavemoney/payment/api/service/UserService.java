@@ -1,7 +1,5 @@
 package org.wavemoney.payment.api.service;
 
-import jakarta.validation.Valid;
-import org.wavemoney.payment.api.dto.request.KYCFormRequest;
 import org.wavemoney.payment.api.dto.request.PinUpdateRequest;
 import org.wavemoney.payment.api.dto.request.UserRequest;
 import org.wavemoney.payment.api.dto.request.UserUpdateRequest;

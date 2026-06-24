@@ -41,6 +41,7 @@ public class UserServiceImpl implements UserService {
                 .phone(request.phone())
                 .nrc(request.nrc())
                 .pin(request.pin())
+                .kycStatus("NOT SUBMITTED")
                 .createdAt(LocalDateTime.now())
                 .build();
 
@@ -167,6 +168,7 @@ public class UserServiceImpl implements UserService {
                 .phone(user.getPhone())
                 .walletStatus(walletStatus)
                 .level(user.getLevel())
+                .kycStatus(user.getKycStatus())
                 .build();
     }
 
