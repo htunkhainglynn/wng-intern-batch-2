@@ -27,7 +27,6 @@ public class User {
     private String gender;
     private String nationality;
     private String occupation;
-    private Boolean is_admin = false;
     private LocalDateTime createdAt;
     private LocalDateTime updatedAt;
     private LocalDateTime lastLogin;
