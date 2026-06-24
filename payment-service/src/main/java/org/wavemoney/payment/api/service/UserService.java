@@ -12,7 +12,7 @@ import java.util.List;
 
 public interface UserService {
 
-    UserResponse create(KYCFormRequest request);
+    UserResponse create(UserRequest request);
     UserResponse getByPhone (String phone);
 
     LoginResponse login(String phone, String pin);

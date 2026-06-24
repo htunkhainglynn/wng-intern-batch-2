@@ -30,7 +30,7 @@ public class UserServiceImpl implements UserService {
 
 
     @Override
-    public UserResponse create(KYCFormRequest request) {
+    public UserResponse create(UserRequest request) {
         if (userRepository.existsByPhoneOrNrc(request.phone(), request.nrc())) {
             throw BusinessLogicException.business("ACCOUNT_TAKEN", "Account is already taken");
         }
@@ -41,11 +41,6 @@ public class UserServiceImpl implements UserService {
                 .phone(request.phone())
                 .nrc(request.nrc())
                 .pin(request.pin())
-                .address(request.address())
-                .dateOfBirth(request.dateOfBirth())
-                .gender(request.gender())
-                .nationality(request.nationality())
-                .occupation(request.occupation())
                 .createdAt(LocalDateTime.now())
                 .build();
 
@@ -110,7 +105,11 @@ public class UserServiceImpl implements UserService {
         User user = userRepository.findByPhone(phone)
                 .orElseThrow(() -> BusinessLogicException.notFound("USER_NOT_FOUND", "User with phone number /' " + phone + " /' not found"));
 
-        user.setName(updReq.name());
+        user.setAddress(updReq.address());
+        user.setDateOfBirth(updReq.dateOfBirth());
+        user.setGender(updReq.gender());
+        user.setNationality(updReq.nationality());
+        user.setOccupation(updReq.occupation());
         User saved = userRepository.save(user);
         String walletStatus = walletService.getWalletStatusByPhone(phone);
         return toResponse(saved, walletStatus);

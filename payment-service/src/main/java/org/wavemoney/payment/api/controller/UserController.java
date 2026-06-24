@@ -22,7 +22,7 @@ public class UserController {
     private final UserService userService;
 
     @PostMapping
-    public ResponseEntity<ApiResponse<UserResponse>> create(@Valid @RequestBody KYCFormRequest request) {
+    public ResponseEntity<ApiResponse<UserResponse>> create(@Valid @RequestBody UserRequest request) {
         UserResponse created = userService.create(request);
         return ResponseEntity
                 .status(HttpStatus.CREATED)
@@ -41,7 +41,7 @@ public class UserController {
         return ResponseEntity.ok(ApiResponse.success(user));
     }
 
-    @PutMapping("/{phone}")
+    @PostMapping("/kyc/{phone}")
     public ResponseEntity<ApiResponse<UserResponse>> update(@PathVariable String phone, @Valid @RequestBody UserUpdateRequest updReq) {
         UserResponse updated = userService.update(phone, updReq);
         return ResponseEntity.ok(ApiResponse.success(updated, HttpStatus.OK.value(), "User updated"));
