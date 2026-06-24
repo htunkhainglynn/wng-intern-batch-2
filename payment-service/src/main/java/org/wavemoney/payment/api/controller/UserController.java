@@ -5,7 +5,10 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
-import org.wavemoney.payment.api.dto.request.*;
+import org.wavemoney.payment.api.dto.request.LoginRequest;
+import org.wavemoney.payment.api.dto.request.PinUpdateRequest;
+import org.wavemoney.payment.api.dto.request.UserRequest;
+import org.wavemoney.payment.api.dto.request.UserUpdateRequest;
 import org.wavemoney.payment.api.dto.response.ApiResponse;
 import org.wavemoney.payment.api.dto.response.LoginResponse;
 import org.wavemoney.payment.api.dto.response.UserResponse;
@@ -22,7 +25,7 @@ public class UserController {
     private final UserService userService;
 
     @PostMapping
-    public ResponseEntity<ApiResponse<UserResponse>> create(@Valid @RequestBody KYCFormRequest request) {
+    public ResponseEntity<ApiResponse<UserResponse>> create(@Valid @RequestBody UserRequest request) {
         UserResponse created = userService.create(request);
         return ResponseEntity
                 .status(HttpStatus.CREATED)

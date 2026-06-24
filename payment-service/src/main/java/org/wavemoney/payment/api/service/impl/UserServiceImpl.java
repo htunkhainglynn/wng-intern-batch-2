@@ -2,7 +2,10 @@ package org.wavemoney.payment.api.service.impl;
 
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
-import org.wavemoney.payment.api.dto.request.*;
+import org.wavemoney.payment.api.dto.request.PinUpdateRequest;
+import org.wavemoney.payment.api.dto.request.UserRequest;
+import org.wavemoney.payment.api.dto.request.UserUpdateRequest;
+import org.wavemoney.payment.api.dto.request.WalletRequest;
 import org.wavemoney.payment.api.dto.response.LoginResponse;
 import org.wavemoney.payment.api.dto.response.UserResponse;
 import org.wavemoney.payment.api.entity.User;
@@ -30,7 +33,7 @@ public class UserServiceImpl implements UserService {
 
 
     @Override
-    public UserResponse create(KYCFormRequest request) {
+    public UserResponse create(UserRequest request) {
         if (userRepository.existsByPhoneOrNrc(request.phone(), request.nrc())) {
             throw BusinessLogicException.business("ACCOUNT_TAKEN", "Account is already taken");
         }
@@ -41,11 +44,6 @@ public class UserServiceImpl implements UserService {
                 .phone(request.phone())
                 .nrc(request.nrc())
                 .pin(request.pin())
-                .address(request.address())
-                .dateOfBirth(request.dateOfBirth())
-                .gender(request.gender())
-                .nationality(request.nationality())
-                .occupation(request.occupation())
                 .createdAt(LocalDateTime.now())
                 .build();
 
