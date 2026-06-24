@@ -110,6 +110,7 @@ public class UserServiceImpl implements UserService {
         user.setGender(updReq.gender());
         user.setNationality(updReq.nationality());
         user.setOccupation(updReq.occupation());
+        user.setKycStatus("PENDING");
         User saved = userRepository.save(user);
         String walletStatus = walletService.getWalletStatusByPhone(phone);
         return toResponse(saved, walletStatus);

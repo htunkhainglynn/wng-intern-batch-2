@@ -27,6 +27,7 @@ public class User {
     private String gender;
     private String nationality;
     private String occupation;
+    private String kycStatus = "NOT SUBMITTED";
     private LocalDateTime createdAt;
     private LocalDateTime updatedAt;
     private LocalDateTime lastLogin;
