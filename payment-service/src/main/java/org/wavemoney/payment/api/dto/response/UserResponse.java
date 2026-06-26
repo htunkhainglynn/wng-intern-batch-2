@@ -10,5 +10,10 @@ public class UserResponse {
     private String walletStatus;
     private String phone;
     private String level;
+    private String address;
+    private String dateOfBirth;
+    private String gender;
+    private String nationality;
+    private String occupation;
     private String kycStatus;
 }

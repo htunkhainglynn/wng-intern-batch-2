@@ -169,6 +169,11 @@ public class UserServiceImpl implements UserService {
                 .walletStatus(walletStatus)
                 .level(user.getLevel())
                 .kycStatus(user.getKycStatus())
+                .address(user.getAddress())
+                .dateOfBirth(user.getDateOfBirth())
+                .gender(user.getGender())
+                .nationality(user.getNationality())
+                .occupation(user.getOccupation())
                 .build();
     }
 
