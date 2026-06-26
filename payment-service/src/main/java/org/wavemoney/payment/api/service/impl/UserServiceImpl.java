@@ -168,6 +168,7 @@ public class UserServiceImpl implements UserService {
                 .phone(user.getPhone())
                 .walletStatus(walletStatus)
                 .level(user.getLevel())
+                .nrc(user.getNrc())
                 .kycStatus(user.getKycStatus())
                 .address(user.getAddress())
                 .dateOfBirth(user.getDateOfBirth())
