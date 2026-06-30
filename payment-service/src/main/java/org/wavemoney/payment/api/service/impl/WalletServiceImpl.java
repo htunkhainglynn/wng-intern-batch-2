@@ -12,6 +12,7 @@ import org.wavemoney.payment.api.repository.WalletRepository;
 import org.wavemoney.payment.api.service.WalletService;
 
 import java.util.List;
+import java.util.Map;
 import java.util.UUID;
 import java.util.stream.Collectors;
 
@@ -64,6 +65,16 @@ public class WalletServiceImpl implements WalletService {
     @Override
     public String getWalletStatusByPhone(String phone) {
         return walletRepository.getStatusByPhone(phone).getStatus().orElseThrow(() -> BusinessLogicException.notFound("WALLET_NOT_FOUND", "Wallet with phone number " + phone + " not found"));
+    }
+
+    @Override
+    public Map<String, String> getWalletStatusesByPhones(List<String> phones) {
+        if(phones == null || phones.isEmpty()) {
+            return Map.of();
+        }
+        List<Wallet> wallets = walletRepository.findByPhoneIn(phones);
+        return wallets.stream()
+                .collect(Collectors.toMap(Wallet::getPhone, Wallet::getStatus));
     }
 
     @Override

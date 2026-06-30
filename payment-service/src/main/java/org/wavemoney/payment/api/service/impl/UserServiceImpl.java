@@ -5,6 +5,7 @@ import org.springframework.stereotype.Service;
 import org.wavemoney.payment.api.dto.request.*;
 import org.wavemoney.payment.api.dto.response.LoginResponse;
 import org.wavemoney.payment.api.dto.response.UserResponse;
+import org.wavemoney.payment.api.entity.KycStatus;
 import org.wavemoney.payment.api.entity.User;
 import org.wavemoney.payment.api.enums.WalletStatus;
 import org.wavemoney.payment.api.exception.BusinessLogicException;
@@ -16,6 +17,7 @@ import org.wavemoney.payment.config.security.TokenService;
 
 import java.time.LocalDateTime;
 import java.util.List;
+import java.util.Map;
 import java.util.UUID;
 import java.util.stream.Collectors;
 
@@ -41,7 +43,7 @@ public class UserServiceImpl implements UserService {
                 .phone(request.phone())
                 .nrc(request.nrc())
                 .pin(request.pin())
-                .kycStatus("NOT SUBMITTED")
+                .kycStatus(KycStatus.NOT_SUBMITTED.name())
                 .createdAt(LocalDateTime.now())
                 .build();
 
@@ -49,13 +51,20 @@ public class UserServiceImpl implements UserService {
         //kafkaTemplate.send("User-events", User.builder().phone(saved.getPhone()).build());
 
         walletService.create(WalletRequest.builder().phone(saved.getPhone()).build());
+
         return toResponse(saved, WalletStatus.ACTIVE.name());
     }
 
     @Override
     public List<UserResponse> getAllUsers() {
         List<User> users = userRepository.findAll();
-        return toResponse(users);
+        //all users
+        List<String> phones = users.stream().map(User::getPhone).collect(Collectors.toList());
+        Map<String, String> walletStatuses = walletService.getWalletStatusesByPhones(phones);
+
+        return users.stream()
+                .map(u -> toResponse(u, walletStatuses.getOrDefault(u.getPhone(), WalletStatus.ACTIVE.name())))
+                .collect(Collectors.toList());
     }
 
     @Override
@@ -81,10 +90,10 @@ public class UserServiceImpl implements UserService {
         userRepository.save(user);
         String walletStatus = walletService.getWalletStatusByPhone(phone);
         UserResponse userResponse = toResponse(user, walletStatus);
-        
+
         String token = jwtService.issue(user.getPhone(), "ACTIVE");
         tokenService.markTokenAsActive(user.getPhone(), jwtService.expirationMs());
-        
+
         return LoginResponse.builder()
                 .user(userResponse)
                 .accessToken(token)
@@ -97,22 +106,23 @@ public class UserServiceImpl implements UserService {
     public void logout(String phone) {
         User user = userRepository.findByPhone(phone)
                 .orElseThrow(() -> BusinessLogicException.notFound("USER_NOT_FOUND", "User " + phone + " not found"));
-        
+
         tokenService.markTokenAsLoggedOut(user.getPhone());
     }
 
     @Override
     public UserResponse update(String phone, UserUpdateRequest updReq) {
         User user = userRepository.findByPhone(phone)
-                .orElseThrow(() -> BusinessLogicException.notFound("USER_NOT_FOUND", "User with phone number /' " + phone + " /' not found"));
+                .orElseThrow(() -> BusinessLogicException.notFound("USER_NOT_FOUND", "User with phone number '" + phone + "' not found"));
 
         user.setAddress(updReq.address());
         user.setDateOfBirth(updReq.dateOfBirth());
         user.setGender(updReq.gender());
         user.setNationality(updReq.nationality());
         user.setOccupation(updReq.occupation());
-        user.setKycStatus("PENDING");
+        user.setKycStatus(KycStatus.PENDING.name());
         User saved = userRepository.save(user);
+
         String walletStatus = walletService.getWalletStatusByPhone(phone);
         return toResponse(saved, walletStatus);
     }
@@ -176,12 +186,5 @@ public class UserServiceImpl implements UserService {
                 .nationality(user.getNationality())
                 .occupation(user.getOccupation())
                 .build();
-    }
-
-    private List<UserResponse> toResponse(List<User> users) {
-        return users
-                .stream()
-                .map(u -> toResponse(u, walletService.getWalletStatusByPhone(u.getPhone())))
-                .collect(Collectors.toList());
     }
 }

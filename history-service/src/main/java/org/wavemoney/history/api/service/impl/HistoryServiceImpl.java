@@ -69,5 +69,4 @@ public class HistoryServiceImpl implements HistoryService {
                 .status(event.status())
                 .build();
     }
-
 }

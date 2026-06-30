@@ -15,6 +15,5 @@ public interface NotificationService {
     // Return notifications for a given recipient phone number
     List<Notification> getNotifications(String phone);
 
-
     Optional<Notification> handleCashoutEvent(TransactionEvent event);
 }

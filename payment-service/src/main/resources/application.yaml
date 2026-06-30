@@ -37,6 +37,8 @@ app:
       cashin-events: payment.cashin.events
       cashout-events: payment.cashout.events
       transaction-events: payment.transaction.events
+      notification-events: payment.notification.events
+
 
   security:
     jwt:
