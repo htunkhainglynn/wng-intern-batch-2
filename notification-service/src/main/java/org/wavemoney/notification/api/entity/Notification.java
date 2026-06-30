@@ -20,7 +20,8 @@ import java.time.Instant;
         @CompoundIndex(
                 name = "uniq_transactionId_recipient",
                 def = "{'transactionId': 1, 'recipient': 1}",
-                unique = true
+                unique = true,
+                partialFilter = "{ 'transactionId': { '$type': 'string' } }"
         )
 })
 public class Notification {

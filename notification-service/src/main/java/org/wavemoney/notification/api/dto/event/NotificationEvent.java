@@ -1,7 +1,6 @@
-package org.wavemoney.payment.api.dto.event;
+package org.wavemoney.notification.api.dto.event;
 
 import lombok.Builder;
-import java.io.Serializable;
 
 @Builder
 public record NotificationEvent(
@@ -9,4 +8,4 @@ public record NotificationEvent(
         String message,
         String type,
         String status
-) implements Serializable {}
+) {}

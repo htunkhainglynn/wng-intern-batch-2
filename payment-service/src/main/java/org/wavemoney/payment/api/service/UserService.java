@@ -5,6 +5,7 @@ import org.wavemoney.payment.api.dto.request.UserRequest;
 import org.wavemoney.payment.api.dto.request.UserUpdateRequest;
 import org.wavemoney.payment.api.dto.response.LoginResponse;
 import org.wavemoney.payment.api.dto.response.UserResponse;
+import org.wavemoney.payment.api.entity.User;
 
 import java.util.List;
 
@@ -27,4 +28,7 @@ public interface UserService {
     List<UserResponse> getAllUsers();
 
     void changePin(PinUpdateRequest pinUpdateRequest);
+
+    UserResponse approveKyc(String phone);
+    UserResponse rejectKyc(String phone);
 }

@@ -6,5 +6,6 @@ import lombok.Builder;
 public record NotificationEvent(
     String phone,
     String message,
-    String type
+    String type,
+    String status
 ) {}

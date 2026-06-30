@@ -4,6 +4,7 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.dao.DuplicateKeyException;
 import org.springframework.stereotype.Service;
+import org.wavemoney.notification.api.dto.event.NotificationEvent;
 import org.wavemoney.notification.api.dto.event.TransactionEvent;
 import org.wavemoney.notification.api.entity.Notification;
 import org.wavemoney.notification.api.repository.NotificationRepository;
@@ -43,6 +44,20 @@ public class NotificationServiceImpl implements NotificationService {
         Optional<Notification> saved = saveIfAbsent(buildCashoutNotification(event));
         log.debug("Saved cashout notification for transactionId={}: {}", event.transactionId(), saved);
         return saved;
+    }
+
+    @Override
+    public void handleNotificationEvent(NotificationEvent event) {
+        Notification notification = Notification.builder()
+                .recipient(event.phone())
+                .message(event.message())
+                .type(event.type())
+                .status(event.status())
+                .createdAt(Instant.now())
+                .build();
+        notificationRepository.save(notification);
+        log.info("Saved notification for phone={} type={}", event.phone(), event.type());
+
     }
 
     @Override

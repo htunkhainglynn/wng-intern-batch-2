@@ -1,19 +1,25 @@
 package org.wavemoney.payment.api.service.impl;
 
 import lombok.RequiredArgsConstructor;
+import org.springframework.kafka.core.KafkaTemplate;
 import org.springframework.stereotype.Service;
+import org.wavemoney.payment.api.component.NotificationMessageBuilder;
+import org.wavemoney.payment.api.dto.event.NotificationEvent;
 import org.wavemoney.payment.api.dto.request.*;
 import org.wavemoney.payment.api.dto.response.LoginResponse;
 import org.wavemoney.payment.api.dto.response.UserResponse;
 import org.wavemoney.payment.api.entity.KycStatus;
 import org.wavemoney.payment.api.entity.User;
+import org.wavemoney.payment.api.entity.Wallet;
 import org.wavemoney.payment.api.enums.WalletStatus;
 import org.wavemoney.payment.api.exception.BusinessLogicException;
 import org.wavemoney.payment.api.repository.UserRepository;
+import org.wavemoney.payment.api.repository.WalletRepository;
 import org.wavemoney.payment.api.service.UserService;
 import org.wavemoney.payment.api.service.WalletService;
 import org.wavemoney.payment.config.security.JwtService;
 import org.wavemoney.payment.config.security.TokenService;
+import org.springframework.beans.factory.annotation.Value;
 
 import java.time.LocalDateTime;
 import java.util.List;
@@ -30,10 +36,16 @@ public class UserServiceImpl implements UserService {
     private final JwtService jwtService;
     private final TokenService tokenService;
 
+    private final KafkaTemplate<String, Object> kafkaTemplate;
+    private final NotificationMessageBuilder messageBuilder;
+    private final WalletRepository walletRepository;
+
+    @Value("${app.kafka.topics.notification-events}")
+    private String notificationTopic;
 
     @Override
     public UserResponse create(UserRequest request) {
-        if (userRepository.existsByPhoneOrNrc(request.phone(), request.nrc())) {
+        if (userRepository.existsByPhone(request.phone())) {
             throw BusinessLogicException.business("ACCOUNT_TAKEN", "Account is already taken");
         }
         String id = UUID.randomUUID().toString();
@@ -52,6 +64,10 @@ public class UserServiceImpl implements UserService {
 
         walletService.create(WalletRequest.builder().phone(saved.getPhone()).build());
 
+        // Send Noti
+        NotificationEvent welcomeEvent = messageBuilder.buildWelcomeEvent(saved.getPhone(), "ACTIVE");
+        kafkaTemplate.send(notificationTopic, saved.getPhone(), welcomeEvent);
+
         return toResponse(saved, WalletStatus.ACTIVE.name());
     }
 
@@ -60,10 +76,11 @@ public class UserServiceImpl implements UserService {
         List<User> users = userRepository.findAll();
         //all users
         List<String> phones = users.stream().map(User::getPhone).collect(Collectors.toList());
-        Map<String, String> walletStatuses = walletService.getWalletStatusesByPhones(phones);
+        Map<String, String> walletStatuses = walletRepository.findByPhoneIn(phones).stream()
+                .collect(Collectors.toMap(Wallet::getPhone, Wallet::getStatus));
 
         return users.stream()
-                .map(u -> toResponse(u, walletStatuses.getOrDefault(u.getPhone(), WalletStatus.ACTIVE.name())))
+                .map(u -> toResponse(u, walletStatuses.getOrDefault(u.getPhone(), WalletStatus.CLOSED.name())))
                 .collect(Collectors.toList());
     }
 
@@ -122,6 +139,39 @@ public class UserServiceImpl implements UserService {
         user.setOccupation(updReq.occupation());
         user.setKycStatus(KycStatus.PENDING.name());
         User saved = userRepository.save(user);
+
+        // send KYC submission
+        NotificationEvent kycEvent = messageBuilder.buildKycStatusEvent(saved.getPhone(), KycStatus.PENDING.name());
+        kafkaTemplate.send(notificationTopic, phone, kycEvent);
+
+        String walletStatus = walletService.getWalletStatusByPhone(phone);
+        return toResponse(saved, walletStatus);
+    }
+
+    @Override
+    public UserResponse approveKyc(String phone) {
+        User user = userRepository.findByPhone(phone)
+                .orElseThrow(() -> BusinessLogicException.notFound("USER_NOT_FOUND", "User not found"));
+        user.setKycStatus(KycStatus.APPROVED.name());
+        user.setLevel("2");
+        User saved = userRepository.save(user);
+
+        NotificationEvent kycEvent = messageBuilder.buildKycStatusEvent(phone, KycStatus.APPROVED.name());
+        kafkaTemplate.send(notificationTopic, phone, kycEvent);
+
+        String walletStatus = walletService.getWalletStatusByPhone(phone);
+        return toResponse(saved, walletStatus);
+    }
+
+    @Override
+    public UserResponse rejectKyc(String phone) {
+        User user = userRepository.findByPhone(phone)
+                .orElseThrow(() -> BusinessLogicException.notFound("USER_NOT_FOUND", "User not found"));
+        user.setKycStatus(KycStatus.REJECTED.name());
+        User saved = userRepository.save(user);
+
+        NotificationEvent kycEvent = messageBuilder.buildKycStatusEvent(phone, KycStatus.REJECTED.name());
+        kafkaTemplate.send(notificationTopic, phone, kycEvent);
 
         String walletStatus = walletService.getWalletStatusByPhone(phone);
         return toResponse(saved, walletStatus);

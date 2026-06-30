@@ -47,6 +47,22 @@ public class UserController {
         return ResponseEntity.ok(ApiResponse.success(updated, HttpStatus.OK.value(), "User updated"));
     }
 
+    @PostMapping("/{phone}/kyc/approve")
+    public ResponseEntity<ApiResponse<UserResponse>> approveKyc(
+            @PathVariable String phone
+    ) {
+        UserResponse user = userService.approveKyc(phone);
+        return ResponseEntity.ok(ApiResponse.success(user, HttpStatus.OK.value(), "KYC approved"));
+    }
+
+    @PostMapping("/{phone}/kyc/reject")
+    public ResponseEntity<ApiResponse<UserResponse>> rejectKyc(
+            @PathVariable String phone
+    ) {
+        UserResponse user = userService.rejectKyc(phone);
+        return ResponseEntity.ok(ApiResponse.success(user, HttpStatus.OK.value(), "KYC rejected"));
+    }
+
     @PutMapping("/change-pin")
     public ResponseEntity<ApiResponse<String>> changePin(@Valid @RequestBody PinUpdateRequest pinUpdateRequest) {
         userService.changePin(pinUpdateRequest);

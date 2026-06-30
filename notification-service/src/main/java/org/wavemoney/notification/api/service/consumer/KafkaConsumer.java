@@ -4,6 +4,7 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.kafka.annotation.KafkaListener;
 import org.springframework.stereotype.Component;
+import org.wavemoney.notification.api.dto.event.NotificationEvent;
 import org.wavemoney.notification.api.dto.event.TransactionEvent;
 import org.wavemoney.notification.api.service.NotificationService;
 
@@ -13,6 +14,15 @@ import org.wavemoney.notification.api.service.NotificationService;
 public class KafkaConsumer {
 
     private final NotificationService notificationService;
+
+    @KafkaListener(
+            topics = "${app.kafka.topics.notification-events}",
+            groupId = "${spring.kafka.consumer.group-id}"
+    )
+    public void onNotificationEvent(NotificationEvent event) {
+        log.info("Received notification event: {}", event);
+        notificationService.handleNotificationEvent(event);
+    }
 
     @KafkaListener(
             topics = "${app.kafka.topics.transfer-events}",
